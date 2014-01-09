@@ -81,10 +81,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
         }
     }
 
-	/*
-	 * Az értékek alaphelyzetbe állítása és a toplistát tartalmazó fájl
-	 * megnyitása
-	 */
 	public void init() {
 	    int x = 24 * unit;
 	    int y = 14 * unit;
@@ -103,33 +99,21 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		points.init();
 	}
 
-	/*
-	 * A mozgatás elindításának függvénye.
-	 */
 	public void start() {
 		run = true;
 		(new Thread(this)).start();
 	}
 
-	/*
-	 * A Snake() függvény. Ez a program lelke. Itt történik az ablak
-	 * létrehozása, az ablak minden elemények hozzáadása, az értékek
-	 * inicializálása, az elsõ snake létrehozása, valamint itt híodik meg a
-	 * "mozgató" függvény is
-	 */
 	public Snake() {
 	    
 		super("Snake v0.7");
 		setSize(width, height);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// Értékek inicializálása
 		init();
 
         new MenuController(menu, board, model, points).bind();
 
-		// A pálya részeinek részletes beállítása (pozíció, szélesség,
-		// magasság, szín) és hozzáadása az ablakhoz
 		board.setLayout(null);
 		board.setBounds(0, 0, boardWidth, boardHeight);
 		board.setBackground(Color.LIGHT_GRAY);
@@ -138,7 +122,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		top.setBounds(0, 0, boardWidth, boardHeight);
 		top.setBackground(Color.LIGHT_GRAY);
 
-		// Keret megrajzolása és hozzáadása a pályához
 		frame[0] = new JPanel();
 		frame[0].setBounds(0, 0, boardWidth, unit);
 		frame[1] = new JPanel();
@@ -152,10 +135,8 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		board.add(frame[2]);
 		board.add(frame[3]);
 
-		// Az elsõ snake létrehozása és kirajzolása
 		elsoSnake();
 
-		// A pontszám kíírása a képernyõre
 		pointsLabel.setForeground(Color.BLACK);
 		pointsPanel.add(pointsLabel);
 
@@ -164,94 +145,61 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
         add(pointsPanel, BorderLayout.SOUTH);
         setLayout(null);
         
-		// Az ablak beállításai
 		setResizable(false);
 		setLocationRelativeTo(null);
 		addKeyListener(this);
 		setVisible(true);
 
-		// A mozgatás elindítása
 		start();
 	}
 
-	/*
-	 * Az újraindító függvény. Ennek meghívásakor az érték újra alapállapotba
-	 * kerülnek, ami eddig az ablakon volt az eltûnik, a mozgatás megáll, a
-	 * keret, az elsõ snake és a pontszám újra kirajzoldik, és meghívódik a
-	 * mozgató függvény
-	 */
 	void reset() {
-		// Az értékek kezdeti helyzetbe állítása
 		init();
 
-		// A pálya lepucolása
 		board.removeAll();
 		scrollPane.removeAll();
 
-		// Ha az elõzõ játékban meghalt a kígyó, akkor a játék vége kijelzõ
-		// törlése az ablakból
 		if (gameover == true) {
 			remove(top);
 		}
 
-		// A keret hozzáadása a pályához
 		board.add(frame[0]);
 		board.add(frame[1]);
 		board.add(frame[2]);
 		board.add(frame[3]);
 
-		// Az elsõ kígyó létrehozása, kirajzolása
 		elsoSnake();
 
-		// A pálya hozzáadása az ablakhoz, annak újrarajzolása és a pontszám
-		// kiírása
 		add(board, BorderLayout.CENTER);
 		repaint();
 		setVisible(true);
 		pointsLabel.setText("Pontszám: " + points.getActualPoints());
 
-		// A mozgatás elindítása
 		start();
 	}
 
-	/*
-	 * Az elsõ snake létrehozása és a pályára rajzolása.
-	 */
 	void elsoSnake() {
-		// Minden kockát külön rajzol ki a függvény, ezért a ciklus
 		for (int i = 0; i < snakeLength; i++) {
-			// Egy "kocka" létrehozása és annak beállításai (helyzet, szín)
 			JButton newPiece = createNewSnakePiece();
 			Position lastPos = positions.get(i);
 			newPiece.setBounds(lastPos.getX(), lastPos.getY(), unit, unit);
 
-			// A kocka megjelenítése a pályán
 			board.add(newPiece);
 
-			// A következõ elem koordinátáinak a megváltoztatása
 			positions.add(new Position(lastPos.getX() - unit, lastPos.getY()));
 		}
 	}
 
-	/*
-	 * Ez a függvény létrehozza az új ételt a pályán random helyen, és
-	 * kirajzolja azt
-	 */
 	void novekszik() {
-		// Létrehozza az új ételt, és hozzáadja a pályához
 		JButton newPiece = createNewSnakePiece();
 
-		// Randomgenerátorral létrehozza az étel x,y koordinátáit
 		int kajax = 20 + (unit * random.nextInt(46));
 		int kajay = 20 + (unit * random.nextInt(26));
 
-		// Beállítja a koordinátáit a kajának, és kirajzolja azt a megadott
-		// pozícióban
-        positions.add(new Position(kajax, kajay));
+		positions.add(new Position(kajax, kajay));
 		newPiece.setBounds(kajax, kajay, unit, unit);
         board.add(newPiece);
 
-		// Megnöveli a kígyó hosszát jelzõ változót
 		snakeLength++;
 	}
 
@@ -269,18 +217,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		scrollPane.setViewportView(points.getToplistAsTable());
 	}
 
-	/*
-	 * A mozgató függvény megváltoztatja a kígyó pozícióját a megadott irányba,
-	 * és közben vizsgálja, hogy a kígyó nem ütközött-e falnak vagy magának,
-	 * illetve azt, hogy evett-e
-	 */
 	void mozgat() {
-		// Lekéri a kígyó összes elemének pozícióját a pályán
-		/*for (int i = 0; i < snakeLength; i++) {
-			points[i] = pieces.get(i).getLocation();
-		}*/
-
-		// Megváltoztatja az elsõ elemnek a pozícióját a megadott irányba
 		Position firstPos = positions.get(0);
 		int newX = firstPos.getX() + xCoordChange;
 	    int newY = firstPos.getY() + yCoordChange;
@@ -289,21 +226,12 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		oldTail.setBounds(newX, newY, unit, unit);
 		pieces.add(0, oldTail);
 
-		// Megváltoztatja a többi elem helyzetét az elõtt lévõ elemére
-		/*for (int i = 1; i < snakeLength; i++) {
-			pieces.get(i).setLocation(points[i - 1]);
-		}*/
-
-		// Ellenõrzi, hogy a kígyó nem-e ment önmagába
-		// TODO refactor!
 		for (int i = 1; i < snakeLength - 1; i++) {
 			if (pieces.get(0).getLocation().equals(pieces.get(i).getLocation())) {
 				crashedItself = true;
 			}
 		}
 
-		// Ellenõrzi, hogy a kígyó nem-e ment önmagába vagy falnak. Ha igen
-		// akkor a játéknak vége procedúra zajlik le, illetve leáll a mozgatás
 		Position head = positions.get(0);
 		int x = head.getX();
 		int y = head.getY();
@@ -313,8 +241,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 			handleGameEnd();
 		}
 
-		// Ellenõrzi, hogy a kígyó nem érte-e el az ételt. Ha igen akkor növeli
-		// a pontszámot
 		Position tail = positions.get(positions.size()-2);
 		if (x == tail.getX() && y == tail.getY()) {
 			hasEaten = true;
@@ -322,8 +248,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 			pointsLabel.setText("Pontszám: " + points.getActualPoints());
 		}
 
-		// Ha evett, akkor létrehozza az új ételt és növeli a kígyót, különben
-		// az étel ott marad ahol volt
 		if (hasEaten == true) {
 			novekszik();
 			hasEaten = false;
@@ -331,8 +255,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 			pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);
 		}
 
-		// A pálya frissítése
-		//board.repaint();
 		setVisible(true);
 	}
 
@@ -349,9 +271,9 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
             top.add(noWin);
             add(top, BorderLayout.CENTER);
 	    } else {
-            /*JLabel win = new JLabel("Gratulálok! Felkerültél a toplistára. Kérlek add meg a neved (max 10 betû):");
+            JLabel win = new JLabel("Gratulálok! Felkerültél a toplistára. Kérlek add meg a neved (max 10 betû):");
 
-            top.removeAll();
+            /*top.removeAll();
             top.add(gameEnd);
             top.add(win);
             top.add(winnersName);
@@ -359,21 +281,15 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
             repaint();*/
             
             
-         // Egy ArrayList létrehozása, mely a megadott nevet tárolja
             final ArrayList<String> holder = new ArrayList<String>();
 
-            // A kiírások és a szövegmezõ létrehozása
-            JLabel nyert1 = new JLabel("A játéknak vége!");
-            JLabel nyert2 = new JLabel("Gratulálok! Felkerültél a toplistára. Kérlek add meg a neved (max 10 betû):");
             final JTextField newnev = new JTextField(10);
 
-            // Ezek hozzáadása a top panelhez
             top.removeAll();
-            top.add(nyert1);
-            top.add(nyert2);
+            top.add(gameEnd);
+            top.add(win);
             top.add(newnev);
 
-            // A szövegmezõ tartalmának hozzásadása a holderhez
             newnev.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     synchronized (holder) {
@@ -384,12 +300,10 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
                 }
             });
 
-            // A top panel hozzáadása az ablakhoz, és az ablak újrarajzolása
             add(top, BorderLayout.CENTER);
             setVisible(true);
             repaint();
 
-            // Várakozás a szövegezõ kitöltéséig
             synchronized (holder) {
                 while (holder.isEmpty())
                     try {
@@ -399,11 +313,8 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
                     }
             }
 
-            // A lista utolsó elemének kicserélése az új listaelemmel és a lista
-            // sorbarendezése
             points.addHighScore(holder.remove(0));
 
-            // A toplista frissítése, és kirajzolása az ablakra
             refreshToplist();
             top.removeAll();
             top.add(scrollPane);
@@ -411,11 +322,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	    }
     }
 
-    /*
-	 * A billentyû lenyomását érzékelõ függvény, mely megfelelõ gomb lenyomására
-	 * a megfelelõ mûveletet hajtja végre
-	 */
-	public void keyPressed(KeyEvent e) {
+    public void keyPressed(KeyEvent e) {
 		if (canGoToLeft == true && e.getKeyCode() == 37) {
 			xCoordChange = -unit;
 			yCoordChange = 0;
@@ -455,9 +362,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	public void keyTyped(KeyEvent arg0) {
 	}
 
-	/*
-	 * A run metódus hivja meg megadott idõközönként a mozgató függvényt
-	 */
 	public void run() {
 		while (run) {
 			mozgat();
@@ -511,7 +415,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
                         WinnersName.this.setVisible(false);
 
                         refreshToplist();
-                        scrollPane.setVisible(true);
                         top.removeAll();
                         top.add(scrollPane);
                         repaint();
