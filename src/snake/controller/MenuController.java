@@ -1,7 +1,12 @@
+package snake.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
+
+import snake.model.SnakeModel;
+import snake.view.Menu;
+import snake.view.SnakeView;
 
 public class MenuController implements MenuActions {
     

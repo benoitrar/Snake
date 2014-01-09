@@ -1,12 +1,14 @@
+package snake.model;
+
 import java.io.Serializable;
 
-class ToplistEntry implements Serializable, Comparable<ToplistEntry> {
+public class ToplistEntry implements Serializable, Comparable<ToplistEntry> {
     
-	private static final long serialVersionUID = 1L;
-	
-	private final String userName;
-	private final int points;
-	
+    private static final long serialVersionUID = 1L;
+    
+    private String userName;
+    private int points;
+
     public ToplistEntry(String userName, int points) {
         this.userName = userName;
         this.points = points;
@@ -21,11 +23,11 @@ class ToplistEntry implements Serializable, Comparable<ToplistEntry> {
     }
 
     @Override
-    public int compareTo(ToplistEntry o) {
-        if (points > o.getPoints()) {
-            return 1;
-        } else if (points < o.getPoints()) {
+    public int compareTo(ToplistEntry t) {
+        if (points > t.getPoints()) {
             return -1;
+        } else if (points < t.getPoints()) {
+            return +1;
         } else {
             return 0;
         }

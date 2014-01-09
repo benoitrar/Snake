@@ -1,3 +1,5 @@
+package snake;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
@@ -33,6 +35,12 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
+import snake.controller.MenuController;
+import snake.model.SnakeModel;
+import snake.model.ToplistEntry;
+import snake.view.Menu;
+import snake.view.SnakeView;
+
 public class Snake extends JFrame implements KeyListener, Runnable {
 	/**
 	 * 
@@ -57,7 +65,12 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	JLabel pontkiiras;
 	JScrollPane scrollpane;
 
-	ArrayList<Toplist> lista = new ArrayList<Toplist>();
+	ArrayList<ToplistEntry> lista = new ArrayList<ToplistEntry>();
+//	{
+//	    for(int i=0;i<10;i++) {
+//	        lista.add(new ToplistEntry("", 0));
+//	    }
+//	}
     private final SnakeModel model = new SnakeModel();
 
 	/*
@@ -269,7 +282,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			in = new ObjectInputStream(buffer);
 
 			// A fájl tartalmának bemásolása a lista ArrayListbe
-			lista = (ArrayList<Toplist>) in.readObject();
+			lista = (ArrayList<ToplistEntry>) in.readObject();
 
 			// A fájl bezárása
 			in.close();
@@ -362,7 +375,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			// A lista utolsó elemének kicserélése az új listaelemmel és a lista
 			// sorbarendezése
 			lista.remove(9);
-			lista.add(new Toplist(holder.remove(0), pontok));
+			lista.add(new ToplistEntry(holder.remove(0), pontok));
 			Collections.sort(lista);
 
 			// A toplista frissítése, és kirajzolása az ablakra
@@ -407,7 +420,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		scrollpane = new JScrollPane(tablazat);
 
 		// A táblázat feltöltése a lista elemeivel
-		for (Toplist i : lista) {
+		for (ToplistEntry i : lista) {
 			String[] row = { i.getUserName(), String.valueOf(i.getPoints()) };
 			tablazatmodell.addRow(row);
 		}

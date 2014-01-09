@@ -1,3 +1,5 @@
+package snake.controller;
+
 public interface MenuActions {
 
     void bindNewGame();
