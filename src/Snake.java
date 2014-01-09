@@ -27,8 +27,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -110,7 +108,9 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 		// Értékek inicializálása és a menü létrehozása
 		init();
-		menu();
+
+        // A teljes menü megjelenítése az ablakon
+        frame.setJMenuBar(menu());
 
 		// A pálya részeinek részletes beállítása (pozíció, szélesség,
 		// magasság, szín) és hozzáadása az ablakhoz
@@ -161,96 +161,8 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * Ez a menüt létrehozõ függvény. Létrehozza a menüket, hozzáadja a
 	 * funkcióikat, és a képernyõre viszi azokat
 	 */
-	public void menu() {
-		// A 3 menupont létrehozása
-		menubar = new JMenuBar();
-		jatek = new JMenu("Játék");
-		beallitasok = new JMenu("Beállítások");
-		segitseg = new JMenu("Segítség");
-
-		// A 3 menupontokon belüli lehetõségek létrehozása
-		JMenuItem ujjatek = new JMenuItem("Új Játék (F2)");
-		JMenuItem toplist = new JMenuItem("Toplista");
-		JMenuItem kilepes = new JMenuItem("Kilépés (ALT+F4)");
-
-		JMenuItem nehez = new JMenuItem("Nehéz");
-		JMenuItem normal = new JMenuItem("Normál");
-		JMenuItem konnyu = new JMenuItem("Könnyû");
-
-		JMenuItem iranyitas = new JMenuItem("Irányítás");
-		JMenuItem keszito = new JMenuItem("Készítõ");
-
-		// Az Új Játék, a Toplista és a Kilépés funkciók hozzárendelése
-		ujjatek.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				reset();
-			}
-		});
-		toplist.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(jatekter, scrollpane);
-			}
-		});
-		kilepes.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
-
-		// Ezek hozzáadása a Játék menüponthoz
-		jatek.add(ujjatek);
-		jatek.addSeparator();
-		jatek.add(toplist);
-		jatek.addSeparator();
-		jatek.add(kilepes);
-		menubar.add(jatek);
-
-		// A sebesség változtatásának hozzárendelése
-		nehez.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				sebesseg = 50;
-			}
-		});
-		normal.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				sebesseg = 70;
-			}
-		});
-		konnyu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				sebesseg = 90;
-			}
-		});
-
-		// Ezek hozzáadása a Beállítások menüponthoz
-		beallitasok.add(nehez);
-		beallitasok.addSeparator();
-		beallitasok.add(normal);
-		beallitasok.addSeparator();
-		beallitasok.add(konnyu);
-		menubar.add(beallitasok);
-
-		// A segítségek funkcióinak megvalósítása
-		keszito.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(jatekter, "Készítõ: Kérlek Refaktorálj\n" + "Programnév: Snake\n" + "Verziószám: v0.7");
-			}
-		});
-		iranyitas.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(jatekter, "Irányítás a kurzor segítségével:\n" + "-Fel nyíl: a kígyó felfele mozog\n"
-						+ "-Le nyíl: a kígyó lefele mozog\n" + "-Jobbra nyíl: a kígyó jobbra mozog\n" + "-Balra nyíl: a kígyó balra mozog\n");
-			}
-		});
-
-		// Ezek hozzáadása a Segítség menüponthoz
-		segitseg.add(keszito);
-		segitseg.addSeparator();
-		segitseg.add(iranyitas);
-		menubar.add(segitseg);
-
-		// A teljes menü megjelenítése az ablakon
-		frame.setJMenuBar(menubar);
+	public Menu menu() {
+		return new Menu();
 	}
 
 	/*
