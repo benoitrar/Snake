@@ -58,7 +58,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
     private final Point[] points = new Point[125];
     private final Random random = new Random();
 
-    private final JButton[] pieces = new JButton[125];
+    private final List<JButton> pieces = new ArrayList<>();
     private final SnakeView board;
     private final JPanel pointsPanel, top;
     private final JPanel[] frame = new JPanel[4];
@@ -237,14 +237,12 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		// Minden kockát külön rajzol ki a függvény, ezért a ciklus
 		for (int i = 0; i < snakeLength; i++) {
 			// Egy "kocka" létrehozása és annak beállításai (helyzet, szín)
-			pieces[i] = new JButton();
-			pieces[i].setEnabled(false);
+			JButton newPiece = createNewSnakePiece();
 			Position lastPos = positions.get(i);
-			pieces[i].setBounds(lastPos.getX(), lastPos.getY(), unit, unit);
-			pieces[i].setBackground(Color.BLACK);
+			newPiece.setBounds(lastPos.getX(), lastPos.getY(), unit, unit);
 
 			// A kocka megjelenítése a pályán
-			board.add(pieces[i]);
+			board.add(newPiece);
 
 			// A következõ elem koordinátáinak a megváltoztatása
 			positions.add(new Position(lastPos.getX() - unit, lastPos.getY()));
@@ -256,11 +254,8 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * kirajzolja azt
 	 */
 	void novekszik() {
-	    System.out.println("Hello");
 		// Létrehozza az új ételt, és hozzáadja a pályához
-		pieces[snakeLength] = new JButton();
-		pieces[snakeLength].setEnabled(false);
-		pieces[snakeLength].setBackground(Color.BLACK);
+		JButton newPiece = createNewSnakePiece();
 
 		// Randomgenerátorral létrehozza az étel x,y koordinátáit
 		int kajax = 20 + (unit * random.nextInt(46));
@@ -269,12 +264,20 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		// Beállítja a koordinátáit a kajának, és kirajzolja azt a megadott
 		// pozícióban
         positions.add(new Position(kajax, kajay));
-		pieces[snakeLength].setBounds(kajax, kajay, unit, unit);
-        board.add(pieces[snakeLength]);
+		newPiece.setBounds(kajax, kajay, unit, unit);
+        board.add(newPiece);
 
 		// Megnöveli a kígyó hosszát jelzõ változót
 		snakeLength++;
 	}
+
+    private JButton createNewSnakePiece() {
+        JButton newPiece = new JButton();
+		newPiece.setEnabled(false);
+		newPiece.setBackground(Color.BLACK);
+		pieces.add(newPiece);
+		return newPiece;
+    }
 
 	/*
 	 * A fájlmegnyitó függvény megnyitja a "toplist.ser" nevû fájlt, mely a
@@ -444,7 +447,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	void mozgat() {
 		// Lekéri a kígyó összes elemének pozícióját a pályán
 		for (int i = 0; i < snakeLength; i++) {
-			points[i] = pieces[i].getLocation();
+			points[i] = pieces.get(i).getLocation();
 		}
 
 		// Megváltoztatja az elsõ elemnek a pozícióját a megadott irányba
@@ -452,11 +455,11 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		int newX = firstPos.getX() + xCoordChange;
 	    int newY = firstPos.getY() + yCoordChange;
         positions.add(0, new Position(newX , newY));
-		pieces[0].setBounds(newX, newY, unit, unit);
+		pieces.get(0).setBounds(newX, newY, unit, unit);
 
 		// Megváltoztatja a többi elem helyzetét az elõtt lévõ elemére
 		for (int i = 1; i < snakeLength; i++) {
-			pieces[i].setLocation(points[i - 1]);
+			pieces.get(i).setLocation(points[i - 1]);
 		}
 
 		// Ellenõrzi, hogy a kígyó nem-e ment önmagába
@@ -492,7 +495,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			novekszik();
 			hasEaten = false;
 		} else {
-			pieces[snakeLength - 1].setBounds(tail.getX(), tail.getY(), unit, unit);
+			pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);
 		}
 
 		// A pálya frissítése
