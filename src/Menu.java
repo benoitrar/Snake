@@ -6,24 +6,22 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 public class Menu extends JMenuBar {
-    
+
+    private final JMenu jatek = new JMenu("Játék");
     private final JMenuItem newGame = new JMenuItem("Új Játék (F2)");
+    private final JMenuItem toplist = new JMenuItem("Toplista");
+    private final JMenuItem kilepes = new JMenuItem("Kilépés (ALT+F4)");
+    
+    private final JMenu beallitasok = new JMenu("Beállítások");
+    private final JMenuItem nehez = new JMenuItem("Nehéz");
+    private final JMenuItem normal = new JMenuItem("Normál");
+    private final JMenuItem konnyu = new JMenuItem("Könnyû");
+    
+    private final JMenu segitseg = new JMenu("Segítség");
+    private final JMenuItem keszito = new JMenuItem("Készítõ");
+    private final JMenuItem iranyitas = new JMenuItem("Irányítás");
 
     public Menu() {
-        JMenu jatek = new JMenu("Játék");
-        JMenu beallitasok = new JMenu("Beállítások");
-        JMenu segitseg = new JMenu("Segítség");
-
-        JMenuItem toplist = new JMenuItem("Toplista");
-        JMenuItem kilepes = new JMenuItem("Kilépés (ALT+F4)");
-
-        JMenuItem nehez = new JMenuItem("Nehéz");
-        JMenuItem normal = new JMenuItem("Normál");
-        JMenuItem konnyu = new JMenuItem("Könnyû");
-
-        JMenuItem iranyitas = new JMenuItem("Irányítás");
-        JMenuItem keszito = new JMenuItem("Készítõ");
-
         // Az Új Játék, a Toplista és a Kilépés funkciók hozzárendelése
         newGame.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
