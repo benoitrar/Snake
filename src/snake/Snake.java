@@ -27,7 +27,6 @@ import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -58,13 +57,12 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	JButton[] pieces = new JButton[125];
 	SnakeView board;
     JPanel pointsPanel, top;
-	JPanel[] keret = new JPanel[4];
+	JPanel[] frame = new JPanel[4];
 	JMenuBar menubar;
-	JMenu jatek, beallitasok, segitseg;
-	JLabel pontkiiras;
-	JScrollPane scrollpane;
+	JLabel pointsLabel;
+	JScrollPane scrollPane;
 
-	ArrayList<ToplistEntry> lista = new ArrayList<ToplistEntry>();
+	ArrayList<ToplistEntry> toplist = new ArrayList<ToplistEntry>();
 //	{
 //	    for(int i=0;i<10;i++) {
 //	        lista.add(new ToplistEntry("", 0));
@@ -137,26 +135,26 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		top.setBackground(Color.LIGHT_GRAY);
 
 		// Keret megrajzolása és hozzáadása a pályához
-		keret[0] = new JPanel();
-		keret[0].setBounds(0, 0, boardWidth, unit);
-		keret[1] = new JPanel();
-		keret[1].setBounds(0, 0, unit, boardHeight);
-		keret[2] = new JPanel();
-		keret[2].setBounds(0, boardHeight - unit, boardWidth, unit);
-		keret[3] = new JPanel();
-		keret[3].setBounds(boardWidth - unit, 0, unit, boardHeight);
-		board.add(keret[0]);
-		board.add(keret[1]);
-		board.add(keret[2]);
-		board.add(keret[3]);
+		frame[0] = new JPanel();
+		frame[0].setBounds(0, 0, boardWidth, unit);
+		frame[1] = new JPanel();
+		frame[1].setBounds(0, 0, unit, boardHeight);
+		frame[2] = new JPanel();
+		frame[2].setBounds(0, boardHeight - unit, boardWidth, unit);
+		frame[3] = new JPanel();
+		frame[3].setBounds(boardWidth - unit, 0, unit, boardHeight);
+		board.add(frame[0]);
+		board.add(frame[1]);
+		board.add(frame[2]);
+		board.add(frame[3]);
 
 		// Az elsõ snake létrehozása és kirajzolása
 		elsoSnake();
 
 		// A pontszám kíírása a képernyõre
-		pontkiiras = new JLabel("Pontszám: " + actualPoints);
-		pontkiiras.setForeground(Color.BLACK);
-		pointsPanel.add(pontkiiras);
+		pointsLabel = new JLabel("Pontszám: " + actualPoints);
+		pointsLabel.setForeground(Color.BLACK);
+		pointsPanel.add(pointsLabel);
 
         setJMenuBar(menu);
         add(board, BorderLayout.CENTER);
@@ -193,7 +191,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 		// A pálya lepucolása
 		board.removeAll();
-		scrollpane.removeAll();
+		scrollPane.removeAll();
 
 		// Ha az elõzõ játékban meghalt a kígyó, akkor a játék vége kijelzõ
 		// törlése az ablakból
@@ -202,10 +200,10 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		}
 
 		// A keret hozzáadása a pályához
-		board.add(keret[0]);
-		board.add(keret[1]);
-		board.add(keret[2]);
-		board.add(keret[3]);
+		board.add(frame[0]);
+		board.add(frame[1]);
+		board.add(frame[2]);
+		board.add(frame[3]);
 
 		// Az elsõ kígyó létrehozása, kirajzolása
 		elsoSnake();
@@ -215,7 +213,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		add(board, BorderLayout.CENTER);
 		repaint();
 		setVisible(true);
-		pontkiiras.setText("Pontszám: " + actualPoints);
+		pointsLabel.setText("Pontszám: " + actualPoints);
 
 		// A mozgatás elindítása
 		start();
@@ -282,7 +280,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			in = new ObjectInputStream(buffer);
 
 			// A fájl tartalmának bemásolása a lista ArrayListbe
-			lista = (ArrayList<ToplistEntry>) in.readObject();
+			toplist = (ArrayList<ToplistEntry>) in.readObject();
 
 			// A fájl bezárása
 			in.close();
@@ -309,7 +307,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			out = new ObjectOutputStream(buffer);
 
 			// A lista ArrayList fájlba írása
-			out.writeObject(lista);
+			out.writeObject(toplist);
 
 			// A fájl bezárása
 			out.close();
@@ -331,7 +329,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		remove(board);
 
 		// Ha az elért eredmény jobb az eddigi legkisebb eredménynél
-		if (actualPoints > lista.get(9).getPoints()) {
+		if (actualPoints > toplist.get(9).getPoints()) {
 			// Egy ArrayList létrehozása, mely a megadott nevet tárolja
 			final ArrayList<String> holder = new ArrayList<String>();
 
@@ -374,14 +372,14 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 			// A lista utolsó elemének kicserélése az új listaelemmel és a lista
 			// sorbarendezése
-			lista.remove(9);
-			lista.add(new ToplistEntry(holder.remove(0), actualPoints));
-			Collections.sort(lista);
+			toplist.remove(9);
+			toplist.add(new ToplistEntry(holder.remove(0), actualPoints));
+			Collections.sort(toplist);
 
 			// A toplista frissítése, és kirajzolása az ablakra
 			toplistafrissites();
 			top.removeAll();
-			top.add(scrollpane);
+			top.add(scrollPane);
 			repaint();
 			// Ha az eredmény nincs bent a legjobb 10-be
 		} else {
@@ -417,10 +415,10 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		// A táblázat létrehozása egy ScrollPane-ben
 		DefaultTableModel tablazatmodell = new DefaultTableModel(colnames, 0);
 		JTable tablazat = new JTable(tablazatmodell);
-		scrollpane = new JScrollPane(tablazat);
+		scrollPane = new JScrollPane(tablazat);
 
 		// A táblázat feltöltése a lista elemeivel
-		for (ToplistEntry i : lista) {
+		for (ToplistEntry i : toplist) {
 			String[] row = { i.getUserName(), String.valueOf(i.getPoints()) };
 			tablazatmodell.addRow(row);
 		}
@@ -468,7 +466,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		if (xPosition[0] == xPosition[snakeLength - 1] && yPosition[0] == yPosition[snakeLength - 1]) {
 			hasEaten = true;
 			actualPoints = actualPoints + 5;
-			pontkiiras.setText("Pontszám: " + actualPoints);
+			pointsLabel.setText("Pontszám: " + actualPoints);
 		}
 
 		// Ha evett, akkor létrehozza az új ételt és növeli a kígyót, különben
