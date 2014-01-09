@@ -1,3 +1,5 @@
+import java.awt.event.ActionListener;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -54,8 +56,8 @@ public class Menu extends JMenuBar {
         this.add(help);
     }
 
-    public JMenuItem getNewGame() {
-        return newGame;
+    public void addActionListenerToNewGame(ActionListener listener) {
+        newGame.addActionListener(listener);
     }
     
 }

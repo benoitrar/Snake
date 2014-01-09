@@ -18,7 +18,7 @@ public class MenuController {
     }
 
     private void bindNewGame() {
-        menu.getNewGame().addActionListener(new ActionListener() {
+        menu.addActionListenerToNewGame(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 view.reset();
             }
