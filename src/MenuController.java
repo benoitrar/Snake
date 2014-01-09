@@ -7,10 +7,12 @@ public class MenuController implements MenuActions {
     
     private final Menu menu;
     private final SnakeView view;
+    private final SnakeModel model;
 
-    public MenuController(Menu menu, SnakeView view) {
+    public MenuController(Menu menu, SnakeView view, SnakeModel model) {
         this.menu = menu;
         this.view = view;
+        this.model = model;
     }
 
     public void bind() {
@@ -60,8 +62,7 @@ public class MenuController implements MenuActions {
     public void bindDifficult() {
         menu.addActionListenerToDifficult(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // TODO
-                //sebesseg = 50;
+                model.setVelocityToQuick();
             }
         });
     }
@@ -70,8 +71,7 @@ public class MenuController implements MenuActions {
     public void bindNormal() {
         menu.addActionListenerToNormal(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // TODO
-                //sebesseg = 70;
+                model.setVelocityToNormal();
             }
         });
     }
@@ -80,8 +80,7 @@ public class MenuController implements MenuActions {
     public void bindEasy() {
         menu.addActionListenerToEasy(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // TODO
-                //sebesseg = 90;
+                model.setVelocityToSlow();
             }
         });
     }

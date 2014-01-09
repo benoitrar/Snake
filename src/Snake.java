@@ -40,7 +40,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	private static final long serialVersionUID = 1L;
 	int WIDTH = 506, HEIGHT = 380, egyseg = 10;
 	int palyasz = 50 * egyseg, palyam = 30 * egyseg;
-	int sebesseg, pontok, hossz, xvalt, yvalt;
+	int pontok, hossz, xvalt, yvalt;
 	boolean fut, mehetbalra, mehetjobbra, mehetfel, mehetle, evett, magabament, gameover;
 	int[] pozx = new int[125];
 	int[] pozy = new int[125];
@@ -58,6 +58,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	JScrollPane scrollpane;
 
 	ArrayList<Toplist> lista = new ArrayList<Toplist>();
+    private final SnakeModel model = new SnakeModel();
 
 	/*
 	 * Az értékek alaphelyzetbe állítása és a toplistát tartalmazó fájl
@@ -66,7 +67,6 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	public void init() {
 		pozx[0] = 24 * egyseg;
 		pozy[0] = 14 * egyseg;
-		sebesseg = 70;
 		pontok = 0;
 		hossz = 3;
 		xvalt = +egyseg;
@@ -112,7 +112,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
         // A teljes menü megjelenítése az ablakon
 		Menu menu = menu();
-		new MenuController(menu, jatekter).bind();
+		new MenuController(menu, jatekter, model).bind();
         frame.setJMenuBar(menu);
 
 		// A pálya részeinek részletes beállítása (pozíció, szélesség,
@@ -523,7 +523,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		while (fut) {
 			mozgat();
 			try {
-				Thread.sleep(sebesseg);
+				Thread.sleep(model .getVelocity());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
