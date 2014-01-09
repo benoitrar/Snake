@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -34,6 +35,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import snake.controller.MenuController;
+import snake.model.Position;
 import snake.model.SnakeModel;
 import snake.model.ToplistEntry;
 import snake.view.Menu;
@@ -52,8 +54,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	private final int boardHeight = 30 * unit;
     
 	private final SnakeModel model = new SnakeModel();
-    private final int[] xPosition = new int[125];
-    private final int[] yPosition = new int[125];
+	private final List<Position> positions = new ArrayList<>();
     private final Point[] points = new Point[125];
     private final Random random = new Random();
 
@@ -84,8 +85,9 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * megnyitása
 	 */
 	public void init() {
-		xPosition[0] = 24 * unit;
-		yPosition[0] = 14 * unit;
+	    int x = 24 * unit;
+	    int y = 14 * unit;
+	    positions.add(new Position(x, y));
 		actualPoints = 0;
 		snakeLength = 3;
 		xCoordChange = +unit;
@@ -237,15 +239,15 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			// Egy "kocka" létrehozása és annak beállításai (helyzet, szín)
 			pieces[i] = new JButton();
 			pieces[i].setEnabled(false);
-			pieces[i].setBounds(xPosition[i], yPosition[i], unit, unit);
+			Position lastPos = positions.get(i);
+			pieces[i].setBounds(lastPos.getX(), lastPos.getY(), unit, unit);
 			pieces[i].setBackground(Color.BLACK);
 
 			// A kocka megjelenítése a pályán
 			board.add(pieces[i]);
 
 			// A következõ elem koordinátáinak a megváltoztatása
-			xPosition[i + 1] = xPosition[i] - unit;
-			yPosition[i + 1] = yPosition[i];
+			positions.add(new Position(lastPos.getX() - unit, lastPos.getY()));
 		}
 	}
 
@@ -254,11 +256,11 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * kirajzolja azt
 	 */
 	void novekszik() {
+	    System.out.println("Hello");
 		// Létrehozza az új ételt, és hozzáadja a pályához
 		pieces[snakeLength] = new JButton();
 		pieces[snakeLength].setEnabled(false);
 		pieces[snakeLength].setBackground(Color.BLACK);
-		board.add(pieces[snakeLength]);
 
 		// Randomgenerátorral létrehozza az étel x,y koordinátáit
 		int kajax = 20 + (unit * random.nextInt(46));
@@ -266,9 +268,9 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 		// Beállítja a koordinátáit a kajának, és kirajzolja azt a megadott
 		// pozícióban
-		xPosition[snakeLength] = kajax;
-		yPosition[snakeLength] = kajay;
-		pieces[snakeLength].setBounds(xPosition[snakeLength], yPosition[snakeLength], unit, unit);
+        positions.add(new Position(kajax, kajay));
+		pieces[snakeLength].setBounds(kajax, kajay, unit, unit);
+        board.add(pieces[snakeLength]);
 
 		// Megnöveli a kígyó hosszát jelzõ változót
 		snakeLength++;
@@ -446,9 +448,11 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		}
 
 		// Megváltoztatja az elsõ elemnek a pozícióját a megadott irányba
-		xPosition[0] = xPosition[0] + xCoordChange;
-		yPosition[0] = yPosition[0] + yCoordChange;
-		pieces[0].setBounds(xPosition[0], yPosition[0], unit, unit);
+		Position firstPos = positions.remove(0);
+		int newX = firstPos.getX() + xCoordChange;
+	    int newY = firstPos.getY() + yCoordChange;
+        positions.add(0, new Position(newX , newY));
+		pieces[0].setBounds(newX, newY, unit, unit);
 
 		// Megváltoztatja a többi elem helyzetét az elõtt lévõ elemére
 		for (int i = 1; i < snakeLength; i++) {
@@ -464,7 +468,10 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 		// Ellenõrzi, hogy a kígyó nem-e ment önmagába vagy falnak. Ha igen
 		// akkor a játéknak vége procedúra zajlik le, illetve leáll a mozgatás
-		if ((xPosition[0] + 10 == boardWidth) || (xPosition[0] == 0) || (yPosition[0] == 0) || (yPosition[0] + 10 == boardHeight) || (crashedItself == true)) {
+		Position head = positions.get(0);
+		int x = head.getX();
+		int y = head.getY();
+		if ((x + 10 == boardWidth) || (x == 0) || (y == 0) || (y + 10 == boardHeight) || (crashedItself == true)) {
 			run = false;
 			gameover = true;
 			toplistabatesz();
@@ -472,7 +479,8 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 		// Ellenõrzi, hogy a kígyó nem érte-e el az ételt. Ha igen akkor növeli
 		// a pontszámot
-		if (xPosition[0] == xPosition[snakeLength - 1] && yPosition[0] == yPosition[snakeLength - 1]) {
+		Position tail = positions.get(positions.size()-2);
+		if (x == tail.getX() && y == tail.getY()) {
 			hasEaten = true;
 			actualPoints = actualPoints + 5;
 			pointsLabel.setText("Pontszám: " + actualPoints);
@@ -484,11 +492,11 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			novekszik();
 			hasEaten = false;
 		} else {
-			pieces[snakeLength - 1].setBounds(xPosition[snakeLength - 1], yPosition[snakeLength - 1], unit, unit);
+			pieces[snakeLength - 1].setBounds(tail.getX(), tail.getY(), unit, unit);
 		}
 
 		// A pálya frissítése
-		board.repaint();
+		//board.repaint();
 		setVisible(true);
 	}
 
