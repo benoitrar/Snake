@@ -1,10 +1,9 @@
 import java.io.Serializable;
 
-class Toplist implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+class Toplist implements Serializable, Comparable<Toplist> {
+	
+    private static final long serialVersionUID = 1L;
+    
 	private String userName;
 	private int points;
 
@@ -19,5 +18,16 @@ class Toplist implements Serializable {
 
     public int getPoints() {
         return points;
+    }
+
+    @Override
+    public int compareTo(Toplist t) {
+        if (points > t.getPoints()) {
+            return +1;
+        } else if (points < t.getPoints()) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 }
