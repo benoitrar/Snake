@@ -41,11 +41,11 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
     private final Menu menu = new Menu();
     private final List<JButton> pieces = new ArrayList<>();
-    private final SnakeView board;
-    private final JPanel pointsPanel;
-    private final JPanel top;
+    private final SnakeView board = new SnakeView();
+    private final JPanel pointsPanel = new JPanel();
+    private final JPanel top = new JPanel();
     private final JPanel[] frame = new JPanel[4];
-    private final JLabel pointsLabel;
+    private final JLabel pointsLabel = new JLabel("Pontszám: 0");
     private final JScrollPane scrollPane = new JScrollPane();
     private final JTextField winnersName = new WinnersName(10);
 	
@@ -123,11 +123,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		setSize(width, height);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// Az ablak részeinek létrehozása
-		board = new SnakeView();
-		pointsPanel = new JPanel();
-		top = new JPanel();
-
 		// Értékek inicializálása
 		init();
 
@@ -161,7 +156,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		elsoSnake();
 
 		// A pontszám kíírása a képernyõre
-		pointsLabel = new JLabel("Pontszám: " + points.getActualPoints());
 		pointsLabel.setForeground(Color.BLACK);
 		pointsPanel.add(pointsLabel);
 
