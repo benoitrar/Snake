@@ -2,7 +2,6 @@ package snake;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -55,7 +54,6 @@ public class Snake extends JFrame implements KeyListener, Runnable {
     
 	private final SnakeModel model = new SnakeModel();
 	private final List<Position> positions = new ArrayList<>();
-    private final Point[] points = new Point[125];
     private final Random random = new Random();
 
     private final List<JButton> pieces = new ArrayList<>();
@@ -446,25 +444,28 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 */
 	void mozgat() {
 		// Lekéri a kígyó összes elemének pozícióját a pályán
-		for (int i = 0; i < snakeLength; i++) {
+		/*for (int i = 0; i < snakeLength; i++) {
 			points[i] = pieces.get(i).getLocation();
-		}
+		}*/
 
 		// Megváltoztatja az elsõ elemnek a pozícióját a megadott irányba
-		Position firstPos = positions.remove(0);
+		Position firstPos = positions.get(0);
 		int newX = firstPos.getX() + xCoordChange;
 	    int newY = firstPos.getY() + yCoordChange;
         positions.add(0, new Position(newX , newY));
-		pieces.get(0).setBounds(newX, newY, unit, unit);
+        JButton oldTail = pieces.remove(pieces.size()-2);
+		oldTail.setBounds(newX, newY, unit, unit);
+		pieces.add(0, oldTail);
 
 		// Megváltoztatja a többi elem helyzetét az elõtt lévõ elemére
-		for (int i = 1; i < snakeLength; i++) {
+		/*for (int i = 1; i < snakeLength; i++) {
 			pieces.get(i).setLocation(points[i - 1]);
-		}
+		}*/
 
 		// Ellenõrzi, hogy a kígyó nem-e ment önmagába
+		// TODO refactor!
 		for (int i = 1; i < snakeLength - 1; i++) {
-			if (points[0].equals(points[i])) {
+			if (pieces.get(0).getLocation().equals(pieces.get(i).getLocation())) {
 				crashedItself = true;
 			}
 		}
