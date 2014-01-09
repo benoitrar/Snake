@@ -1,4 +1,5 @@
 package snake.model;
+
 public class SnakeModel {
 
     private static final long LITTLE_DELAY = 50;
