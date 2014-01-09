@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -16,14 +15,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 
 import snake.controller.MenuController;
 import snake.controller.SnakeModel;
 import snake.controller.VelocityActions;
 import snake.model.Points;
 import snake.model.Position;
-import snake.model.ToplistEntry;
 import snake.view.Menu;
 import snake.view.SnakeView;
 
@@ -89,7 +86,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	    int x = 24 * unit;
 	    int y = 14 * unit;
 	    positions.add(new Position(x, y));
-		points.actualPoints = 0;
 		snakeLength = 3;
 		xCoordChange = +unit;
 		yCoordChange = 0;
@@ -101,7 +97,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		canGoDownwards = true;
 		hasEaten = true;
 		gameover = false;
-		points.loadToplistFromFile();
+		points.init();
 	}
 
 	/*
@@ -162,7 +158,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		elsoSnake();
 
 		// A pontszám kíírása a képernyõre
-		pointsLabel = new JLabel("Pontszám: " + points.actualPoints);
+		pointsLabel = new JLabel("Pontszám: " + points.getActualPoints());
 		pointsLabel.setForeground(Color.BLACK);
 		pointsPanel.add(pointsLabel);
 
@@ -215,7 +211,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		add(board, BorderLayout.CENTER);
 		repaint();
 		setVisible(true);
-		pointsLabel.setText("Pontszám: " + points.actualPoints);
+		pointsLabel.setText("Pontszám: " + points.getActualPoints());
 
 		// A mozgatás elindítása
 		start();
@@ -270,89 +266,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		return newPiece;
     }
 
-	/*
-	 * Ez a függvény a játék végét vizsgálja. Megnézi, hogy a kígyó halála után
-	 * felkerül-e a toplistára a játékos az elért eredményével. Ha igen akkor
-	 * bekéri a nevét, és frissíti a toplistát. Ha nem akkor egy játék vége
-	 * képernyõt rajzol ki. A végén pedig szerializál.
-	 */
-	void toplistabatesz() {
-		// A pálya törlése a képernyõrõl.
-		remove(board);
-
-		// Ha az elért eredmény jobb az eddigi legkisebb eredménynél
-		if (points.actualPoints > Points.toplist.get(9).getPoints()) {
-			// Egy ArrayList létrehozása, mely a megadott nevet tárolja
-			final ArrayList<String> holder = new ArrayList<String>();
-
-			// A kiírások és a szövegmezõ létrehozása
-			JLabel nyert1 = new JLabel("A játéknak vége!");
-			JLabel nyert2 = new JLabel("Gratulálok! Felkerültél a toplistára. Kérlek add meg a neved (max 10 betû):");
-			final JTextField newnev = new JTextField(10);
-
-			// Ezek hozzáadása a top panelhez
-			top.removeAll();
-			top.add(nyert1);
-			top.add(nyert2);
-			top.add(newnev);
-
-			// A szövegmezõ tartalmának hozzásadása a holderhez
-			newnev.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					synchronized (holder) {
-						holder.add(newnev.getText());
-						holder.notify();
-					}
-					dispose();
-				}
-			});
-
-			// A top panel hozzáadása az ablakhoz, és az ablak újrarajzolása
-			add(top, BorderLayout.CENTER);
-			setVisible(true);
-			repaint();
-
-			// Várakozás a szövegezõ kitöltéséig
-			synchronized (holder) {
-				while (holder.isEmpty())
-					try {
-						holder.wait();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-			}
-
-			// A lista utolsó elemének kicserélése az új listaelemmel és a lista
-			// sorbarendezése
-			Points.toplist.remove(9);
-			Points.toplist.add(new ToplistEntry(holder.remove(0), points.actualPoints));
-			Collections.sort(Points.toplist);
-
-			// A toplista frissítése, és kirajzolása az ablakra
-			refreshToplist();
-			top.removeAll();
-			top.add(scrollPane);
-			repaint();
-			// Ha az eredmény nincs bent a legjobb 10-be
-		} else {
-			// A kiirások létrehozása és hozzáadása az ablakhoz
-			JLabel nemnyert1 = new JLabel("A játéknak vége!");
-			JLabel nemnyert2 = new JLabel("Sajnos nem került be az eredményed a legjobb 10-be. Próbálkozz újra (F2).");
-			nemnyert1.setForeground(Color.BLACK);
-			nemnyert2.setForeground(Color.BLACK);
-			top.removeAll();
-			top.add(nemnyert1);
-			top.add(nemnyert2);
-
-			// A toplista frissítése és a top panel hozzáadása az ablakhoz
-			refreshToplist();
-			add(top, BorderLayout.CENTER);
-			setVisible(true);
-			repaint();
-		}
-		// Szerializálás
-		points.writeToplistToFile();
-	}
+	
 
 	void refreshToplist() {
 		scrollPane.setViewportView(points.getToplistAsTable());
@@ -399,7 +313,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		if ((x + 10 == boardWidth) || (x == 0) || (y == 0) || (y + 10 == boardHeight) || (crashedItself == true)) {
 			run = false;
 			gameover = true;
-			toplistabatesz();
+			handleGameEnd();
 		}
 
 		// Ellenõrzi, hogy a kígyó nem érte-e el az ételt. Ha igen akkor növeli
@@ -407,8 +321,8 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		Position tail = positions.get(positions.size()-2);
 		if (x == tail.getX() && y == tail.getY()) {
 			hasEaten = true;
-			points.actualPoints = points.actualPoints + 5;
-			pointsLabel.setText("Pontszám: " + points.actualPoints);
+			points.getPointsForNewFood();
+			pointsLabel.setText("Pontszám: " + points.getActualPoints());
 		}
 
 		// Ha evett, akkor létrehozza az új ételt és növeli a kígyót, különben
@@ -425,7 +339,24 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		setVisible(true);
 	}
 
-	/*
+	private void handleGameEnd() {
+	    remove(board);
+	    repaint();
+	    if(!points.isHighScore()) {
+	        JLabel gameEnd = new JLabel("A játéknak vége!");
+            JLabel noWin = new JLabel("Sajnos nem került be az eredményed a legjobb 10-be. Próbálkozz újra (F2).");
+            gameEnd.setForeground(Color.BLACK);
+            noWin.setForeground(Color.BLACK);
+            top.removeAll();
+            top.add(gameEnd);
+            top.add(noWin);
+            add(top, BorderLayout.CENTER);
+	    } else {
+	        
+	    }
+    }
+
+    /*
 	 * A billentyû lenyomását érzékelõ függvény, mely megfelelõ gomb lenyomására
 	 * a megfelelõ mûveletet hajtja végre
 	 */
