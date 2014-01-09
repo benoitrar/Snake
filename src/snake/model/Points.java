@@ -1,7 +1,5 @@
 package snake.model;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
@@ -17,9 +15,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 public class Points {
@@ -38,63 +34,12 @@ public class Points {
         return actualPoints > toplist.get(toplist.size()-1).getPoints();
     }
     
-    public void addHighScore() {
+    public void addHighScore(String userName) {
         if (isHighScore()) {
-            // Egy ArrayList létrehozása, mely a megadott nevet tárolja
-            final ArrayList<String> holder = new ArrayList<String>();
-
-            // A kiírások és a szövegmezõ létrehozása
-            JLabel nyert1 = new JLabel("A játéknak vége!");
-            JLabel nyert2 = new JLabel("Gratulálok! Felkerültél a toplistára. Kérlek add meg a neved (max 10 betû):");
-            final JTextField newnev = new JTextField(10);
-
-            // Ezek hozzáadása a top panelhez
-//            top.removeAll();
-//            top.add(nyert1);
-//            top.add(nyert2);
-//            top.add(newnev);
-
-            // A szövegmezõ tartalmának hozzásadása a holderhez
-            newnev.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    synchronized (holder) {
-                        holder.add(newnev.getText());
-                        holder.notify();
-                    }
-//                    dispose();
-                }
-            });
-
-            // A top panel hozzáadása az ablakhoz, és az ablak újrarajzolása
-//            add(top, BorderLayout.CENTER);
-//            setVisible(true);
-//            repaint();
-
-            // Várakozás a szövegezõ kitöltéséig
-            synchronized (holder) {
-                while (holder.isEmpty())
-                    try {
-                        holder.wait();
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-            }
-
-            // A lista utolsó elemének kicserélése az új listaelemmel és a lista
-            // sorbarendezése
-            Points.toplist.remove(9);
-            Points.toplist.add(new ToplistEntry(holder.remove(0), actualPoints));
+            toplist.remove(toplist.size()-1);
+            toplist.add(new ToplistEntry(userName, actualPoints));
             Collections.sort(Points.toplist);
-
-            // A toplista frissítése, és kirajzolása az ablakra
-//            refreshToplist();
-//            top.removeAll();
-//            top.add(scrollPane);
-//            repaint();
-//            points.writeToplistToFile();
-            // Ha az eredmény nincs bent a legjobb 10-be
         }
-        // Szerializálás
     }
 
     public JTable getToplistAsTable() {
@@ -108,8 +53,7 @@ public class Points {
     }
 
     @SuppressWarnings("unchecked")
-    public
-    void loadToplistFromFile() {
+    public void loadToplistFromFile() {
     	// A fájl megnyitása
     	try {
     		InputStream file = new FileInputStream("toplista.ser");
@@ -163,5 +107,11 @@ public class Points {
 
     public void getPointsForNewFood() {
         actualPoints += 5;
+    }
+    
+    private void loadToplistWithEmptyRecords() {
+        for(int i=0;i<10;i++) {
+            toplist.add(new ToplistEntry("", -1));
+        }
     }
 }
