@@ -523,7 +523,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		while (fut) {
 			mozgat();
 			try {
-				Thread.sleep(model .getVelocity());
+				Thread.sleep(model.getDelay());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

@@ -1,25 +1,25 @@
 public class SnakeModel {
 
-    private static final long SLOW_VELOCITY = 50;
-    private static final long NORMAL_VELOCITY = 70;
-    private static final long QUICK_VELOCITY = 90;
+    private static final long LITTLE_DELAY = 50;
+    private static final long NORMAL_DELAY = 70;
+    private static final long BIG_DELAY = 90;
 
-    private long velocity = NORMAL_VELOCITY;
+    private long delay = NORMAL_DELAY;
 
-    public long getVelocity() {
-        return velocity;
+    public long getDelay() {
+        return delay;
     }
 
     public void setVelocityToQuick() {
-        velocity = QUICK_VELOCITY;
+        delay = LITTLE_DELAY;
     }
 
     public void setVelocityToNormal() {
-        velocity = NORMAL_VELOCITY;
+        delay = NORMAL_DELAY;
     }
 
     public void setVelocityToSlow() {
-        velocity = SLOW_VELOCITY;
+        delay = BIG_DELAY;
     }
     
 }
