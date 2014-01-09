@@ -56,7 +56,6 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	Random random = new Random();
 
 	JButton[] pieces = new JButton[125];
-	JFrame frame;
 	SnakeView board;
     JPanel pointsPanel, top;
 	JPanel[] keret = new JPanel[4];
@@ -109,30 +108,26 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * inicializálása, az elsõ snake létrehozása, valamint itt híodik meg a
 	 * "mozgató" függvény is
 	 */
-	Snake() {
-		// Egy WIDTH, HEIGHT méretekkel rendelkezõ abalak létrehozása
-		frame = new JFrame("Snake v0.7");
-		frame.setSize(width, height);
+	public Snake() {
+	    
+		super("Snake v0.7");
+		setSize(width, height);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Az ablak részeinek létrehozása
 		board = new SnakeView();
 		pointsPanel = new JPanel();
 		top = new JPanel();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// Értékek inicializálása és a menü létrehozása
+		// Értékek inicializálása
 		init();
 
         // A teljes menü megjelenítése az ablakon
 		Menu menu = menu();
 		new MenuController(menu, board, model).bind();
-        frame.setJMenuBar(menu);
 
 		// A pálya részeinek részletes beállítása (pozíció, szélesség,
 		// magasság, szín) és hozzáadása az ablakhoz
-		frame.add(board, BorderLayout.CENTER);
-		frame.add(pointsPanel, BorderLayout.SOUTH);
-		frame.setLayout(null);
 		board.setLayout(null);
 		board.setBounds(0, 0, boardWidth, boardHeight);
 		board.setBackground(Color.LIGHT_GRAY);
@@ -163,11 +158,16 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		pontkiiras.setForeground(Color.BLACK);
 		pointsPanel.add(pontkiiras);
 
+        setJMenuBar(menu);
+        add(board, BorderLayout.CENTER);
+        add(pointsPanel, BorderLayout.SOUTH);
+        setLayout(null);
+        
 		// Az ablak beállításai
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-		frame.addKeyListener(this);
+		setResizable(false);
+		setLocationRelativeTo(null);
+		addKeyListener(this);
+		setVisible(true);
 
 		// A mozgatás elindítása
 		start();
@@ -198,7 +198,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		// Ha az elõzõ játékban meghalt a kígyó, akkor a játék vége kijelzõ
 		// törlése az ablakból
 		if (gameover == true) {
-			frame.remove(top);
+			remove(top);
 		}
 
 		// A keret hozzáadása a pályához
@@ -212,9 +212,9 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 		// A pálya hozzáadása az ablakhoz, annak újrarajzolása és a pontszám
 		// kiírása
-		frame.add(board, BorderLayout.CENTER);
-		frame.repaint();
-		frame.setVisible(true);
+		add(board, BorderLayout.CENTER);
+		repaint();
+		setVisible(true);
 		pontkiiras.setText("Pontszám: " + actualPoints);
 
 		// A mozgatás elindítása
@@ -328,7 +328,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 */
 	void toplistabatesz() {
 		// A pálya törlése a képernyõrõl.
-		frame.remove(board);
+		remove(board);
 
 		// Ha az elért eredmény jobb az eddigi legkisebb eredménynél
 		if (actualPoints > lista.get(9).getPoints()) {
@@ -353,14 +353,14 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 						holder.add(newnev.getText());
 						holder.notify();
 					}
-					frame.dispose();
+					dispose();
 				}
 			});
 
 			// A top panel hozzáadása az ablakhoz, és az ablak újrarajzolása
-			frame.add(top, BorderLayout.CENTER);
-			frame.setVisible(true);
-			frame.repaint();
+			add(top, BorderLayout.CENTER);
+			setVisible(true);
+			repaint();
 
 			// Várakozás a szövegezõ kitöltéséig
 			synchronized (holder) {
@@ -382,7 +382,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			toplistafrissites();
 			top.removeAll();
 			top.add(scrollpane);
-			frame.repaint();
+			repaint();
 			// Ha az eredmény nincs bent a legjobb 10-be
 		} else {
 			// A kiirások létrehozása és hozzáadása az ablakhoz
@@ -396,9 +396,9 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 			// A toplista frissítése és a top panel hozzáadása az ablakhoz
 			toplistafrissites();
-			frame.add(top, BorderLayout.CENTER);
-			frame.setVisible(true);
-			frame.repaint();
+			add(top, BorderLayout.CENTER);
+			setVisible(true);
+			repaint();
 		}
 		// Szerializálás
 		fajlbairas();
@@ -482,7 +482,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 		// A pálya frissítése
 		board.repaint();
-		frame.setVisible(true);
+		setVisible(true);
 	}
 
 	/*
