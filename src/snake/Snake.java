@@ -16,7 +16,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import snake.controller.MenuController;
@@ -133,7 +132,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		// Értékek inicializálása
 		init();
 
-        new MenuController(menu, board, model).bind();
+        new MenuController(menu, board, model, points).bind();
 
 		// A pálya részeinek részletes beállítása (pozíció, szélesség,
 		// magasság, szín) és hozzáadása az ablakhoz
@@ -356,7 +355,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	}
 
 	void refreshToplist() {
-		scrollPane.setViewportView(new JTable(points.getToplistAsTable()));
+		scrollPane.setViewportView(points.getToplistAsTable());
 	}
 
 	/*

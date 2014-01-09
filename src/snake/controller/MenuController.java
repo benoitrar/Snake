@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 
+import snake.model.Points;
 import snake.view.Menu;
 import snake.view.SnakeView;
 
@@ -13,11 +14,13 @@ public class MenuController implements MenuActions {
     private final Menu menu;
     private final SnakeView view;
     private final SnakeModel model;
+    private final Points points;
 
-    public MenuController(Menu menu, SnakeView view, SnakeModel model) {
+    public MenuController(Menu menu, SnakeView view, SnakeModel model, Points points) {
         this.menu = menu;
         this.view = view;
         this.model = model;
+        this.points = points;
     }
 
     public void bind() {
@@ -43,8 +46,7 @@ public class MenuController implements MenuActions {
     public void bindTopList() {
         menu.addActionListenerToToplist(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // TODO
-                JOptionPane.showMessageDialog(view, "TOPLIST - TODO");
+                JOptionPane.showMessageDialog(view, points.getToplistAsTable());
             }
         });
     }

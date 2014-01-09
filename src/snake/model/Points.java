@@ -14,6 +14,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 public class Points {
@@ -26,14 +27,14 @@ public class Points {
     public Points() {
     }
 
-    public DefaultTableModel getToplistAsTable() {
+    public JTable getToplistAsTable() {
         DefaultTableModel tableModel = new DefaultTableModel(colNames, 0);
 
         for (ToplistEntry entry : Points.toplist) {
             String[] row = { entry.getUserName(), String.valueOf(entry.getPoints()) };
             tableModel.addRow(row);
         }
-        return tableModel;
+        return new JTable(tableModel);
     }
 
     @SuppressWarnings("unchecked")
