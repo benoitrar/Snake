@@ -446,10 +446,9 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 			// A lista utolsó elemének kicserélése az új listaelemmel és a lista
 			// sorbarendezése
-			Comp comp = new Comp();
 			lista.remove(9);
 			lista.add(new Toplist(holder.remove(0), pontok));
-			Collections.sort(lista, comp);
+			Collections.sort(lista);
 
 			// A toplista frissítése, és kirajzolása az ablakra
 			toplistafrissites();

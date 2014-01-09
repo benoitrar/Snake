@@ -23,9 +23,9 @@ class Toplist implements Serializable, Comparable<Toplist> {
     @Override
     public int compareTo(Toplist t) {
         if (points > t.getPoints()) {
-            return +1;
-        } else if (points < t.getPoints()) {
             return -1;
+        } else if (points < t.getPoints()) {
+            return +1;
         } else {
             return 0;
         }
