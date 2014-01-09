@@ -27,7 +27,6 @@ import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -41,26 +40,40 @@ import snake.view.Menu;
 import snake.view.SnakeView;
 
 public class Snake extends JFrame implements KeyListener, Runnable {
-	/**
-	 * 
-	 */
+    
 	private static final long serialVersionUID = 1L;
-	int width = 506, height = 380, unit = 10;
-	int boardWidth = 50 * unit, boardHeight = 30 * unit;
-	int actualPoints, snakeLength, xCoordChange, yCoordChange;
-	boolean run, canGoToLeft, canGoToRight, canGoUpwards, canGoDownwards, hasEaten, crashedItself, gameover;
-	int[] xPosition = new int[125];
-	int[] yPosition = new int[125];
-	Point[] points = new Point[125];
-	Random random = new Random();
+	
+	private final int width = 506;
+	private final int height = 380;
+	private final int unit = 10;
+	private final int boardWidth = 50 * unit;
+	private final int boardHeight = 30 * unit;
+    
+    private final int[] xPosition = new int[125];
+    private final int[] yPosition = new int[125];
+    private final Point[] points = new Point[125];
+    private final Random random = new Random();
 
-	JButton[] pieces = new JButton[125];
-	SnakeView board;
-    JPanel pointsPanel, top;
-	JPanel[] frame = new JPanel[4];
-	JMenuBar menubar;
-	JLabel pointsLabel;
-	JScrollPane scrollPane;
+    private final JButton[] pieces = new JButton[125];
+    private final SnakeView board;
+    private final JPanel pointsPanel, top;
+    private final JPanel[] frame = new JPanel[4];
+    private final JLabel pointsLabel;
+    private final JScrollPane scrollPane = new JScrollPane();
+	
+	private int actualPoints;
+	private int snakeLength;
+	private int xCoordChange;
+	private int yCoordChange;
+	
+	private boolean run;
+	private boolean canGoToLeft;
+	private boolean canGoToRight;
+	private boolean canGoUpwards;
+	private boolean canGoDownwards;
+	private boolean hasEaten;
+	private boolean crashedItself;
+	private boolean gameover;
 
 	ArrayList<ToplistEntry> toplist = new ArrayList<ToplistEntry>();
 //	{
@@ -415,7 +428,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		// A táblázat létrehozása egy ScrollPane-ben
 		DefaultTableModel tablazatmodell = new DefaultTableModel(colnames, 0);
 		JTable tablazat = new JTable(tablazatmodell);
-		scrollPane = new JScrollPane(tablazat);
+		scrollPane.setViewportView(tablazat);
 
 		// A táblázat feltöltése a lista elemeivel
 		for (ToplistEntry i : toplist) {
