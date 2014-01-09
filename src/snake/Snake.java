@@ -6,23 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -31,11 +18,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
 
 import snake.controller.MenuController;
 import snake.controller.SnakeModel;
 import snake.controller.VelocityActions;
+import snake.model.Points;
 import snake.model.Position;
 import snake.model.ToplistEntry;
 import snake.view.Menu;
@@ -45,8 +32,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     
 	private static final long serialVersionUID = 1L;
 	
-	private static ArrayList<ToplistEntry> toplist = new ArrayList<ToplistEntry>();
-
 	private final int width = 506;
 	private final int height = 380;
 	private final int unit = 10;
@@ -60,13 +45,15 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     private final Menu menu = new Menu();
     private final List<JButton> pieces = new ArrayList<>();
     private final SnakeView board;
-    private final JPanel pointsPanel, top;
+    private final JPanel pointsPanel;
+    private final JPanel top;
     private final JPanel[] frame = new JPanel[4];
     private final JLabel pointsLabel;
     private final JScrollPane scrollPane = new JScrollPane();
 	
-	private int actualPoints;
-	private int snakeLength;
+	private Points points = new Points();
+
+    private int snakeLength;
 	private int xCoordChange;
 	private int yCoordChange;
 	
@@ -103,7 +90,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	    int x = 24 * unit;
 	    int y = 14 * unit;
 	    positions.add(new Position(x, y));
-		actualPoints = 0;
+		points.actualPoints = 0;
 		snakeLength = 3;
 		xCoordChange = +unit;
 		yCoordChange = 0;
@@ -115,7 +102,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		canGoDownwards = true;
 		hasEaten = true;
 		gameover = false;
-		fajlmegnyitas();
+		points.loadToplistFromFile();
 	}
 
 	/*
@@ -176,7 +163,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		elsoSnake();
 
 		// A pontszám kíírása a képernyõre
-		pointsLabel = new JLabel("Pontszám: " + actualPoints);
+		pointsLabel = new JLabel("Pontszám: " + points.actualPoints);
 		pointsLabel.setForeground(Color.BLACK);
 		pointsPanel.add(pointsLabel);
 
@@ -229,7 +216,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		add(board, BorderLayout.CENTER);
 		repaint();
 		setVisible(true);
-		pointsLabel.setText("Pontszám: " + actualPoints);
+		pointsLabel.setText("Pontszám: " + points.actualPoints);
 
 		// A mozgatás elindítása
 		start();
@@ -285,59 +272,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
 
 	/*
-	 * A fájlmegnyitó függvény megnyitja a "toplist.ser" nevû fájlt, mely a
-	 * toplista szereplõit tartalmazza és ezeket a lista nevû ArrayListben
-	 * eltárolja (deszerializálás)
-	 */
-	@SuppressWarnings("unchecked")
-	void fajlmegnyitas() {
-		// A fájl megnyitása
-		try {
-			InputStream file = new FileInputStream("toplista.ser");
-			InputStream buffer = new BufferedInputStream(file);
-			ObjectInput in;
-			in = new ObjectInputStream(buffer);
-
-			// A fájl tartalmának bemásolása a lista ArrayListbe
-			toplist = (ArrayList<ToplistEntry>) in.readObject();
-
-			// A fájl bezárása
-			in.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/*
-	 * A fájlbaíró függvény a "toplista.ser" nevû fájlba beírja a legfrissebb
-	 * toplista szereplõit (szerializálás)
-	 */
-	void fajlbairas() {
-		// A fájl megnyitása
-		try {
-			OutputStream file = new FileOutputStream("toplista.ser");
-
-			OutputStream buffer = new BufferedOutputStream(file);
-			ObjectOutput out;
-			out = new ObjectOutputStream(buffer);
-
-			// A lista ArrayList fájlba írása
-			out.writeObject(toplist);
-
-			// A fájl bezárása
-			out.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/*
 	 * Ez a függvény a játék végét vizsgálja. Megnézi, hogy a kígyó halála után
 	 * felkerül-e a toplistára a játékos az elért eredményével. Ha igen akkor
 	 * bekéri a nevét, és frissíti a toplistát. Ha nem akkor egy játék vége
@@ -348,7 +282,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		remove(board);
 
 		// Ha az elért eredmény jobb az eddigi legkisebb eredménynél
-		if (actualPoints > toplist.get(9).getPoints()) {
+		if (points.actualPoints > Points.toplist.get(9).getPoints()) {
 			// Egy ArrayList létrehozása, mely a megadott nevet tárolja
 			final ArrayList<String> holder = new ArrayList<String>();
 
@@ -391,12 +325,12 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 			// A lista utolsó elemének kicserélése az új listaelemmel és a lista
 			// sorbarendezése
-			toplist.remove(9);
-			toplist.add(new ToplistEntry(holder.remove(0), actualPoints));
-			Collections.sort(toplist);
+			Points.toplist.remove(9);
+			Points.toplist.add(new ToplistEntry(holder.remove(0), points.actualPoints));
+			Collections.sort(Points.toplist);
 
 			// A toplista frissítése, és kirajzolása az ablakra
-			toplistafrissites();
+			refreshToplist();
 			top.removeAll();
 			top.add(scrollPane);
 			repaint();
@@ -412,36 +346,17 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 			top.add(nemnyert2);
 
 			// A toplista frissítése és a top panel hozzáadása az ablakhoz
-			toplistafrissites();
+			refreshToplist();
 			add(top, BorderLayout.CENTER);
 			setVisible(true);
 			repaint();
 		}
 		// Szerializálás
-		fajlbairas();
+		points.writeToplistToFile();
 	}
 
-	/*
-	 * Ez a függvény a toplistát egy táblázatba rakja
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	void toplistafrissites() {
-		// A táblázat fejlécének létrehozása
-		Vector colnames = new Vector();
-		colnames.add("Név");
-		colnames.add("Pont");
-
-		// A táblázat létrehozása egy ScrollPane-ben
-		DefaultTableModel tablazatmodell = new DefaultTableModel(colnames, 0);
-		JTable tablazat = new JTable(tablazatmodell);
-		scrollPane.setViewportView(tablazat);
-
-		// A táblázat feltöltése a lista elemeivel
-		for (ToplistEntry i : toplist) {
-			String[] row = { i.getUserName(), String.valueOf(i.getPoints()) };
-			tablazatmodell.addRow(row);
-		}
-
+	void refreshToplist() {
+		scrollPane.setViewportView(new JTable(points.getToplistAsTable()));
 	}
 
 	/*
@@ -493,8 +408,8 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		Position tail = positions.get(positions.size()-2);
 		if (x == tail.getX() && y == tail.getY()) {
 			hasEaten = true;
-			actualPoints = actualPoints + 5;
-			pointsLabel.setText("Pontszám: " + actualPoints);
+			points.actualPoints = points.actualPoints + 5;
+			pointsLabel.setText("Pontszám: " + points.actualPoints);
 		}
 
 		// Ha evett, akkor létrehozza az új ételt és növeli a kígyót, különben
