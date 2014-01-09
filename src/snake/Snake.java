@@ -29,6 +29,10 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     
 	private static final long serialVersionUID = 1L;
 	
+	private static final JLabel gameEnd = new JLabel("A játéknak vége!");
+	private static final JLabel win = new JLabel("Gratulálok! Felkerültél a toplistára. Kérlek add meg a neved (max 10 betû):");
+	private static final JLabel noWin = new JLabel("Sajnos nem került be az eredményed a legjobb 10-be. Próbálkozz újra (F2).");
+	
 	private final int width = 506;
 	private final int height = 380;
 	private final int unit = 10;
@@ -36,6 +40,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	private final int boardHeight = 30 * unit;
     
 	private final SnakeModel model = new SnakeModel();
+	private final Points points = new Points();
 	private final List<Position> positions = new ArrayList<>();
     private final Random random = new Random();
 
@@ -49,8 +54,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     private final JScrollPane scrollPane = new JScrollPane();
     private final JTextField winnersName = new WinnersName(10);
 	
-	private Points points = new Points();
-
     private int snakeLength;
 	private int xCoordChange;
 	private int yCoordChange;
@@ -64,7 +67,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	private boolean crashedItself;
 	private boolean gameover;
 	private Snake.Delay delay = Snake.Delay.NORMAL_DELAY;
-
 	
 	public static enum Delay {
 	    
@@ -211,8 +213,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		return newPiece;
     }
 
-	
-
 	void refreshToplist() {
 		scrollPane.setViewportView(points.getToplistAsTable());
 	}
@@ -260,66 +260,39 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 	private void handleGameEnd() {
 	    remove(board);
-	    repaint();
 	    top.removeAll();
-	    JLabel gameEnd = new JLabel("A játéknak vége!");
+	    top.add(gameEnd);
+	    repaint();
 	    if(!points.isHighScore()) {
-            JLabel noWin = new JLabel("Sajnos nem került be az eredményed a legjobb 10-be. Próbálkozz újra (F2).");
-            gameEnd.setForeground(Color.BLACK);
-            noWin.setForeground(Color.BLACK);
-            top.add(gameEnd);
             top.add(noWin);
-            add(top, BorderLayout.CENTER);
 	    } else {
-            JLabel win = new JLabel("Gratulálok! Felkerültél a toplistára. Kérlek add meg a neved (max 10 betû):");
-
-            /*top.removeAll();
-            top.add(gameEnd);
             top.add(win);
             top.add(winnersName);
-            add(top, BorderLayout.CENTER);
-            repaint();*/
+	    }
+	    add(top, BorderLayout.CENTER);
+    }
+    
+    private class WinnersName extends JTextField {
+        public WinnersName(int length) {
+            super(length);
             
-            
-            final ArrayList<String> holder = new ArrayList<String>();
-
-            final JTextField newnev = new JTextField(10);
-
-            top.removeAll();
-            top.add(gameEnd);
-            top.add(win);
-            top.add(newnev);
-
-            newnev.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    synchronized (holder) {
-                        holder.add(newnev.getText());
-                        holder.notify();
+            addKeyListener(new KeyListener() {
+                public void keyTyped(KeyEvent e) {}
+                public void keyReleased(KeyEvent e) {}
+                
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if(e.getKeyChar() == KeyEvent.VK_ENTER) {
+                        points.addHighScore(WinnersName.this.getText());
+                        refreshToplist();
+                        top.removeAll();
+                        top.add(scrollPane);
+                        Snake.this.revalidate();
+                        points.writeToplistToFile();
                     }
-                    dispose();
                 }
             });
-
-            add(top, BorderLayout.CENTER);
-            setVisible(true);
-            repaint();
-
-            synchronized (holder) {
-                while (holder.isEmpty())
-                    try {
-                        holder.wait();
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-            }
-
-            points.addHighScore(holder.remove(0));
-
-            refreshToplist();
-            top.removeAll();
-            top.add(scrollPane);
-            repaint();
-	    }
+        }
     }
 
     public void keyPressed(KeyEvent e) {
@@ -398,30 +371,5 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
                 delay = Snake.Delay.BIG_DELAY;
             }
         });
-    }
-    
-    private class WinnersName extends JTextField {
-        public WinnersName(int length) {
-            super(length);
-            
-            addKeyListener(new KeyListener() {
-                public void keyTyped(KeyEvent e) {}
-                public void keyReleased(KeyEvent e) {}
-                
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    if(e.getKeyChar() == KeyEvent.VK_ENTER) {
-                        points.addHighScore(winnersName.getText());
-                        WinnersName.this.setVisible(false);
-
-                        refreshToplist();
-                        top.removeAll();
-                        top.add(scrollPane);
-                        repaint();
-                        points.writeToplistToFile();
-                    }
-                }
-            });
-        }
     }
 }

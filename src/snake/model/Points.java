@@ -97,7 +97,7 @@ public class Points {
     }
 
     public void init() {
-        actualPoints = 0;
+        actualPoints = -2;
         loadToplistFromFile();
     }
 
