@@ -49,7 +49,8 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 	JButton[] kocka = new JButton[125];
 	JFrame frame;
-	JPanel jatekter, pontszam, top;
+	SnakeView jatekter;
+    JPanel pontszam, top;
 	JPanel[] keret = new JPanel[4];
 	JMenuBar menubar;
 	JMenu jatek, beallitasok, segitseg;
@@ -101,7 +102,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		frame.setSize(WIDTH, HEIGHT);
 
 		// Az ablak részeinek létrehozása
-		jatekter = new JPanel();
+		jatekter = new SnakeView();
 		pontszam = new JPanel();
 		top = new JPanel();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -110,7 +111,9 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		init();
 
         // A teljes menü megjelenítése az ablakon
-        frame.setJMenuBar(menu());
+		Menu menu = menu();
+		new MenuController(menu, jatekter).bind();
+        frame.setJMenuBar(menu);
 
 		// A pálya részeinek részletes beállítása (pozíció, szélesség,
 		// magasság, szín) és hozzáadása az ablakhoz

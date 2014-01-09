@@ -59,5 +59,33 @@ public class Menu extends JMenuBar {
     public void addActionListenerToNewGame(ActionListener listener) {
         newGame.addActionListener(listener);
     }
+
+    public void addActionListenerToToplist(ActionListener listener) {
+        toplist.addActionListener(listener);
+    }
+
+    public void addActionListenerToExit(ActionListener listener) {
+        exit.addActionListener(listener);
+    }
+
+    public void addActionListenerToDifficult(ActionListener listener) {
+        difficult.addActionListener(listener);
+    }
+
+    public void addActionListenerToNormal(ActionListener listener) {
+        normal.addActionListener(listener);
+    }
+
+    public void addActionListenerToEasy(ActionListener listener) {
+        easy.addActionListener(listener);
+    }
+
+    public void addActionListenerToCreator(ActionListener listener) {
+        creator.addActionListener(listener);
+    }
+
+    public void addActionListenerToNavigation(ActionListener listener) {
+        navigation.addActionListener(listener);
+    }
     
 }
