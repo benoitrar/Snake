@@ -46,19 +46,19 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	int WIDTH = 506, HEIGHT = 380, egyseg = 10;
-	int palyasz = 50 * egyseg, palyam = 30 * egyseg;
-	int pontok, hossz, xvalt, yvalt;
-	boolean fut, mehetbalra, mehetjobbra, mehetfel, mehetle, evett, magabament, gameover;
-	int[] pozx = new int[125];
-	int[] pozy = new int[125];
-	Point[] p = new Point[125];
-	Random r = new Random();
+	int width = 506, height = 380, unit = 10;
+	int boardWidth = 50 * unit, boardHeight = 30 * unit;
+	int actualPoints, snakeLength, xCoordChange, yCoordChange;
+	boolean run, canGoToLeft, canGoToRight, canGoUpwards, canGoDownwards, hasEaten, crashedItself, gameover;
+	int[] xPosition = new int[125];
+	int[] yPosition = new int[125];
+	Point[] points = new Point[125];
+	Random random = new Random();
 
-	JButton[] kocka = new JButton[125];
+	JButton[] pieces = new JButton[125];
 	JFrame frame;
-	SnakeView jatekter;
-    JPanel pontszam, top;
+	SnakeView board;
+    JPanel pointsPanel, top;
 	JPanel[] keret = new JPanel[4];
 	JMenuBar menubar;
 	JMenu jatek, beallitasok, segitseg;
@@ -78,19 +78,19 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * megnyitása
 	 */
 	public void init() {
-		pozx[0] = 24 * egyseg;
-		pozy[0] = 14 * egyseg;
-		pontok = 0;
-		hossz = 3;
-		xvalt = +egyseg;
-		yvalt = 0;
-		fut = false;
-		magabament = false;
-		mehetbalra = false;
-		mehetjobbra = true;
-		mehetfel = true;
-		mehetle = true;
-		evett = true;
+		xPosition[0] = 24 * unit;
+		yPosition[0] = 14 * unit;
+		actualPoints = 0;
+		snakeLength = 3;
+		xCoordChange = +unit;
+		yCoordChange = 0;
+		run = false;
+		crashedItself = false;
+		canGoToLeft = false;
+		canGoToRight = true;
+		canGoUpwards = true;
+		canGoDownwards = true;
+		hasEaten = true;
 		gameover = false;
 		fajlmegnyitas();
 	}
@@ -99,7 +99,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * A mozgatás elindításának függvénye.
 	 */
 	public void start() {
-		fut = true;
+		run = true;
 		(new Thread(this)).start();
 	}
 
@@ -112,11 +112,11 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	Snake() {
 		// Egy WIDTH, HEIGHT méretekkel rendelkezõ abalak létrehozása
 		frame = new JFrame("Snake v0.7");
-		frame.setSize(WIDTH, HEIGHT);
+		frame.setSize(width, height);
 
 		// Az ablak részeinek létrehozása
-		jatekter = new SnakeView();
-		pontszam = new JPanel();
+		board = new SnakeView();
+		pointsPanel = new JPanel();
 		top = new JPanel();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -125,43 +125,43 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
         // A teljes menü megjelenítése az ablakon
 		Menu menu = menu();
-		new MenuController(menu, jatekter, model).bind();
+		new MenuController(menu, board, model).bind();
         frame.setJMenuBar(menu);
 
 		// A pálya részeinek részletes beállítása (pozíció, szélesség,
 		// magasság, szín) és hozzáadása az ablakhoz
-		frame.add(jatekter, BorderLayout.CENTER);
-		frame.add(pontszam, BorderLayout.SOUTH);
+		frame.add(board, BorderLayout.CENTER);
+		frame.add(pointsPanel, BorderLayout.SOUTH);
 		frame.setLayout(null);
-		jatekter.setLayout(null);
-		jatekter.setBounds(0, 0, palyasz, palyam);
-		jatekter.setBackground(Color.LIGHT_GRAY);
-		pontszam.setBounds(0, palyam, palyasz, 30);
-		pontszam.setBackground(Color.GRAY);
-		top.setBounds(0, 0, palyasz, palyam);
+		board.setLayout(null);
+		board.setBounds(0, 0, boardWidth, boardHeight);
+		board.setBackground(Color.LIGHT_GRAY);
+		pointsPanel.setBounds(0, boardHeight, boardWidth, 30);
+		pointsPanel.setBackground(Color.GRAY);
+		top.setBounds(0, 0, boardWidth, boardHeight);
 		top.setBackground(Color.LIGHT_GRAY);
 
 		// Keret megrajzolása és hozzáadása a pályához
 		keret[0] = new JPanel();
-		keret[0].setBounds(0, 0, palyasz, egyseg);
+		keret[0].setBounds(0, 0, boardWidth, unit);
 		keret[1] = new JPanel();
-		keret[1].setBounds(0, 0, egyseg, palyam);
+		keret[1].setBounds(0, 0, unit, boardHeight);
 		keret[2] = new JPanel();
-		keret[2].setBounds(0, palyam - egyseg, palyasz, egyseg);
+		keret[2].setBounds(0, boardHeight - unit, boardWidth, unit);
 		keret[3] = new JPanel();
-		keret[3].setBounds(palyasz - egyseg, 0, egyseg, palyam);
-		jatekter.add(keret[0]);
-		jatekter.add(keret[1]);
-		jatekter.add(keret[2]);
-		jatekter.add(keret[3]);
+		keret[3].setBounds(boardWidth - unit, 0, unit, boardHeight);
+		board.add(keret[0]);
+		board.add(keret[1]);
+		board.add(keret[2]);
+		board.add(keret[3]);
 
 		// Az elsõ snake létrehozása és kirajzolása
 		elsoSnake();
 
 		// A pontszám kíírása a képernyõre
-		pontkiiras = new JLabel("Pontszám: " + pontok);
+		pontkiiras = new JLabel("Pontszám: " + actualPoints);
 		pontkiiras.setForeground(Color.BLACK);
-		pontszam.add(pontkiiras);
+		pointsPanel.add(pontkiiras);
 
 		// Az ablak beállításai
 		frame.setResizable(false);
@@ -192,7 +192,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		init();
 
 		// A pálya lepucolása
-		jatekter.removeAll();
+		board.removeAll();
 		scrollpane.removeAll();
 
 		// Ha az elõzõ játékban meghalt a kígyó, akkor a játék vége kijelzõ
@@ -202,20 +202,20 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		}
 
 		// A keret hozzáadása a pályához
-		jatekter.add(keret[0]);
-		jatekter.add(keret[1]);
-		jatekter.add(keret[2]);
-		jatekter.add(keret[3]);
+		board.add(keret[0]);
+		board.add(keret[1]);
+		board.add(keret[2]);
+		board.add(keret[3]);
 
 		// Az elsõ kígyó létrehozása, kirajzolása
 		elsoSnake();
 
 		// A pálya hozzáadása az ablakhoz, annak újrarajzolása és a pontszám
 		// kiírása
-		frame.add(jatekter, BorderLayout.CENTER);
+		frame.add(board, BorderLayout.CENTER);
 		frame.repaint();
 		frame.setVisible(true);
-		pontkiiras.setText("Pontszám: " + pontok);
+		pontkiiras.setText("Pontszám: " + actualPoints);
 
 		// A mozgatás elindítása
 		start();
@@ -226,19 +226,19 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 */
 	void elsoSnake() {
 		// Minden kockát külön rajzol ki a függvény, ezért a ciklus
-		for (int i = 0; i < hossz; i++) {
+		for (int i = 0; i < snakeLength; i++) {
 			// Egy "kocka" létrehozása és annak beállításai (helyzet, szín)
-			kocka[i] = new JButton();
-			kocka[i].setEnabled(false);
-			kocka[i].setBounds(pozx[i], pozy[i], egyseg, egyseg);
-			kocka[i].setBackground(Color.BLACK);
+			pieces[i] = new JButton();
+			pieces[i].setEnabled(false);
+			pieces[i].setBounds(xPosition[i], yPosition[i], unit, unit);
+			pieces[i].setBackground(Color.BLACK);
 
 			// A kocka megjelenítése a pályán
-			jatekter.add(kocka[i]);
+			board.add(pieces[i]);
 
 			// A következõ elem koordinátáinak a megváltoztatása
-			pozx[i + 1] = pozx[i] - egyseg;
-			pozy[i + 1] = pozy[i];
+			xPosition[i + 1] = xPosition[i] - unit;
+			yPosition[i + 1] = yPosition[i];
 		}
 	}
 
@@ -248,23 +248,23 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 */
 	void novekszik() {
 		// Létrehozza az új ételt, és hozzáadja a pályához
-		kocka[hossz] = new JButton();
-		kocka[hossz].setEnabled(false);
-		kocka[hossz].setBackground(Color.BLACK);
-		jatekter.add(kocka[hossz]);
+		pieces[snakeLength] = new JButton();
+		pieces[snakeLength].setEnabled(false);
+		pieces[snakeLength].setBackground(Color.BLACK);
+		board.add(pieces[snakeLength]);
 
 		// Randomgenerátorral létrehozza az étel x,y koordinátáit
-		int kajax = 20 + (egyseg * r.nextInt(46));
-		int kajay = 20 + (egyseg * r.nextInt(26));
+		int kajax = 20 + (unit * random.nextInt(46));
+		int kajay = 20 + (unit * random.nextInt(26));
 
 		// Beállítja a koordinátáit a kajának, és kirajzolja azt a megadott
 		// pozícióban
-		pozx[hossz] = kajax;
-		pozy[hossz] = kajay;
-		kocka[hossz].setBounds(pozx[hossz], pozy[hossz], egyseg, egyseg);
+		xPosition[snakeLength] = kajax;
+		yPosition[snakeLength] = kajay;
+		pieces[snakeLength].setBounds(xPosition[snakeLength], yPosition[snakeLength], unit, unit);
 
 		// Megnöveli a kígyó hosszát jelzõ változót
-		hossz++;
+		snakeLength++;
 	}
 
 	/*
@@ -328,10 +328,10 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 */
 	void toplistabatesz() {
 		// A pálya törlése a képernyõrõl.
-		frame.remove(jatekter);
+		frame.remove(board);
 
 		// Ha az elért eredmény jobb az eddigi legkisebb eredménynél
-		if (pontok > lista.get(9).getPoints()) {
+		if (actualPoints > lista.get(9).getPoints()) {
 			// Egy ArrayList létrehozása, mely a megadott nevet tárolja
 			final ArrayList<String> holder = new ArrayList<String>();
 
@@ -375,7 +375,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 			// A lista utolsó elemének kicserélése az új listaelemmel és a lista
 			// sorbarendezése
 			lista.remove(9);
-			lista.add(new ToplistEntry(holder.remove(0), pontok));
+			lista.add(new ToplistEntry(holder.remove(0), actualPoints));
 			Collections.sort(lista);
 
 			// A toplista frissítése, és kirajzolása az ablakra
@@ -434,54 +434,54 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 */
 	void mozgat() {
 		// Lekéri a kígyó összes elemének pozícióját a pályán
-		for (int i = 0; i < hossz; i++) {
-			p[i] = kocka[i].getLocation();
+		for (int i = 0; i < snakeLength; i++) {
+			points[i] = pieces[i].getLocation();
 		}
 
 		// Megváltoztatja az elsõ elemnek a pozícióját a megadott irányba
-		pozx[0] = pozx[0] + xvalt;
-		pozy[0] = pozy[0] + yvalt;
-		kocka[0].setBounds(pozx[0], pozy[0], egyseg, egyseg);
+		xPosition[0] = xPosition[0] + xCoordChange;
+		yPosition[0] = yPosition[0] + yCoordChange;
+		pieces[0].setBounds(xPosition[0], yPosition[0], unit, unit);
 
 		// Megváltoztatja a többi elem helyzetét az elõtt lévõ elemére
-		for (int i = 1; i < hossz; i++) {
-			kocka[i].setLocation(p[i - 1]);
+		for (int i = 1; i < snakeLength; i++) {
+			pieces[i].setLocation(points[i - 1]);
 		}
 
 		// Ellenõrzi, hogy a kígyó nem-e ment önmagába
-		for (int i = 1; i < hossz - 1; i++) {
-			if (p[0].equals(p[i])) {
-				magabament = true;
+		for (int i = 1; i < snakeLength - 1; i++) {
+			if (points[0].equals(points[i])) {
+				crashedItself = true;
 			}
 		}
 
 		// Ellenõrzi, hogy a kígyó nem-e ment önmagába vagy falnak. Ha igen
 		// akkor a játéknak vége procedúra zajlik le, illetve leáll a mozgatás
-		if ((pozx[0] + 10 == palyasz) || (pozx[0] == 0) || (pozy[0] == 0) || (pozy[0] + 10 == palyam) || (magabament == true)) {
-			fut = false;
+		if ((xPosition[0] + 10 == boardWidth) || (xPosition[0] == 0) || (yPosition[0] == 0) || (yPosition[0] + 10 == boardHeight) || (crashedItself == true)) {
+			run = false;
 			gameover = true;
 			toplistabatesz();
 		}
 
 		// Ellenõrzi, hogy a kígyó nem érte-e el az ételt. Ha igen akkor növeli
 		// a pontszámot
-		if (pozx[0] == pozx[hossz - 1] && pozy[0] == pozy[hossz - 1]) {
-			evett = true;
-			pontok = pontok + 5;
-			pontkiiras.setText("Pontszám: " + pontok);
+		if (xPosition[0] == xPosition[snakeLength - 1] && yPosition[0] == yPosition[snakeLength - 1]) {
+			hasEaten = true;
+			actualPoints = actualPoints + 5;
+			pontkiiras.setText("Pontszám: " + actualPoints);
 		}
 
 		// Ha evett, akkor létrehozza az új ételt és növeli a kígyót, különben
 		// az étel ott marad ahol volt
-		if (evett == true) {
+		if (hasEaten == true) {
 			novekszik();
-			evett = false;
+			hasEaten = false;
 		} else {
-			kocka[hossz - 1].setBounds(pozx[hossz - 1], pozy[hossz - 1], egyseg, egyseg);
+			pieces[snakeLength - 1].setBounds(xPosition[snakeLength - 1], yPosition[snakeLength - 1], unit, unit);
 		}
 
 		// A pálya frissítése
-		jatekter.repaint();
+		board.repaint();
 		frame.setVisible(true);
 	}
 
@@ -490,33 +490,33 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * a megfelelõ mûveletet hajtja végre
 	 */
 	public void keyPressed(KeyEvent e) {
-		if (mehetbalra == true && e.getKeyCode() == 37) {
-			xvalt = -egyseg;
-			yvalt = 0;
-			mehetjobbra = false;
-			mehetfel = true;
-			mehetle = true;
+		if (canGoToLeft == true && e.getKeyCode() == 37) {
+			xCoordChange = -unit;
+			yCoordChange = 0;
+			canGoToRight = false;
+			canGoUpwards = true;
+			canGoDownwards = true;
 		}
-		if (mehetfel == true && e.getKeyCode() == 38) {
-			xvalt = 0;
-			yvalt = -egyseg;
-			mehetle = false;
-			mehetjobbra = true;
-			mehetbalra = true;
+		if (canGoUpwards == true && e.getKeyCode() == 38) {
+			xCoordChange = 0;
+			yCoordChange = -unit;
+			canGoDownwards = false;
+			canGoToRight = true;
+			canGoToLeft = true;
 		}
-		if (mehetjobbra == true && e.getKeyCode() == 39) {
-			xvalt = +egyseg;
-			yvalt = 0;
-			mehetbalra = false;
-			mehetfel = true;
-			mehetle = true;
+		if (canGoToRight == true && e.getKeyCode() == 39) {
+			xCoordChange = +unit;
+			yCoordChange = 0;
+			canGoToLeft = false;
+			canGoUpwards = true;
+			canGoDownwards = true;
 		}
-		if (mehetle == true && e.getKeyCode() == 40) {
-			xvalt = 0;
-			yvalt = +egyseg;
-			mehetfel = false;
-			mehetjobbra = true;
-			mehetbalra = true;
+		if (canGoDownwards == true && e.getKeyCode() == 40) {
+			xCoordChange = 0;
+			yCoordChange = +unit;
+			canGoUpwards = false;
+			canGoToRight = true;
+			canGoToLeft = true;
 		}
 		if (e.getKeyCode() == 113) {
 			reset();
@@ -533,7 +533,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	 * A run metódus hivja meg megadott idõközönként a mozgató függvényt
 	 */
 	public void run() {
-		while (fut) {
+		while (run) {
 			mozgat();
 			try {
 				Thread.sleep(model.getDelay());
