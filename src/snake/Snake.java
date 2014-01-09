@@ -43,12 +43,15 @@ public class Snake extends JFrame implements KeyListener, Runnable {
     
 	private static final long serialVersionUID = 1L;
 	
+	private static ArrayList<ToplistEntry> toplist = new ArrayList<ToplistEntry>();
+
 	private final int width = 506;
 	private final int height = 380;
 	private final int unit = 10;
 	private final int boardWidth = 50 * unit;
 	private final int boardHeight = 30 * unit;
     
+	private final SnakeModel model = new SnakeModel();
     private final int[] xPosition = new int[125];
     private final int[] yPosition = new int[125];
     private final Point[] points = new Point[125];
@@ -75,13 +78,6 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	private boolean crashedItself;
 	private boolean gameover;
 
-	ArrayList<ToplistEntry> toplist = new ArrayList<ToplistEntry>();
-//	{
-//	    for(int i=0;i<10;i++) {
-//	        lista.add(new ToplistEntry("", 0));
-//	    }
-//	}
-    private final SnakeModel model = new SnakeModel();
 
 	/*
 	 * Az értékek alaphelyzetbe állítása és a toplistát tartalmazó fájl
