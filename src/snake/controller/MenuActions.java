@@ -8,12 +8,6 @@ public interface MenuActions {
 
     void bindExit();
 
-    void bindDifficult();
-
-    void bindNormal();
-
-    void bindEasy();
-
     void bindCreator();
 
     void bindNavigation();

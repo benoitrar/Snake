@@ -34,13 +34,14 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import snake.controller.MenuController;
+import snake.controller.SnakeModel;
+import snake.controller.VelocityActions;
 import snake.model.Position;
-import snake.model.SnakeModel;
 import snake.model.ToplistEntry;
 import snake.view.Menu;
 import snake.view.SnakeView;
 
-public class Snake extends JFrame implements KeyListener, Runnable {
+public class Snake extends JFrame implements KeyListener, Runnable, VelocityActions {
     
 	private static final long serialVersionUID = 1L;
 	
@@ -56,6 +57,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	private final List<Position> positions = new ArrayList<>();
     private final Random random = new Random();
 
+    private final Menu menu = new Menu();
     private final List<JButton> pieces = new ArrayList<>();
     private final SnakeView board;
     private final JPanel pointsPanel, top;
@@ -76,7 +78,22 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 	private boolean hasEaten;
 	private boolean crashedItself;
 	private boolean gameover;
-
+	private Snake.Delay delay = Snake.Delay.NORMAL_DELAY;
+	
+	public static enum Delay {
+	    
+        LITTLE_DELAY(50), NORMAL_DELAY(70), BIG_DELAY(90);
+        
+        private final long delay;
+        
+        private Delay(long delay) {
+            this.delay = delay;
+        }
+        
+        public long getDelay() {
+            return delay;
+        }
+    }
 
 	/*
 	 * Az értékek alaphelyzetbe állítása és a toplistát tartalmazó fájl
@@ -129,9 +146,7 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		// Értékek inicializálása
 		init();
 
-        // A teljes menü megjelenítése az ablakon
-		Menu menu = menu();
-		new MenuController(menu, board, model).bind();
+        new MenuController(menu, board, model).bind();
 
 		// A pálya részeinek részletes beállítása (pozíció, szélesség,
 		// magasság, szín) és hozzáadása az ablakhoz
@@ -178,14 +193,6 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 
 		// A mozgatás elindítása
 		start();
-	}
-
-	/*
-	 * Ez a menüt létrehozõ függvény. Létrehozza a menüket, hozzáadja a
-	 * funkcióikat, és a képernyõre viszi azokat
-	 */
-	public Menu menu() {
-		return new Menu();
 	}
 
 	/*
@@ -555,10 +562,37 @@ public class Snake extends JFrame implements KeyListener, Runnable {
 		while (run) {
 			mozgat();
 			try {
-				Thread.sleep(model.getDelay());
+				Thread.sleep(delay.getDelay());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
+
+	@Override
+    public void bindDifficult() {
+        menu.addActionListenerToDifficult(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                delay = Snake.Delay.LITTLE_DELAY;
+            }
+        });
+    }
+    
+    @Override
+    public void bindNormal() {
+        menu.addActionListenerToNormal(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                delay = Snake.Delay.NORMAL_DELAY;
+            }
+        });
+    }
+    
+    @Override
+    public void bindEasy() {
+        menu.addActionListenerToEasy(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                delay = Snake.Delay.BIG_DELAY;
+            }
+        });
+    }
 }

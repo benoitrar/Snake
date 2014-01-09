@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 
-import snake.model.SnakeModel;
 import snake.view.Menu;
 import snake.view.SnakeView;
 
@@ -25,10 +24,6 @@ public class MenuController implements MenuActions {
         bindNewGame();
         bindTopList();
         bindExit();
-        
-        bindDifficult();
-        bindNormal();
-        bindEasy();
         
         bindCreator();
         bindNavigation();
@@ -60,33 +55,6 @@ public class MenuController implements MenuActions {
             public void actionPerformed(ActionEvent e) {
                 // TODO System.exit() is forbidden
                 System.exit(0);
-            }
-        });
-    }
-    
-    @Override
-    public void bindDifficult() {
-        menu.addActionListenerToDifficult(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                model.setVelocityToQuick();
-            }
-        });
-    }
-    
-    @Override
-    public void bindNormal() {
-        menu.addActionListenerToNormal(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                model.setVelocityToNormal();
-            }
-        });
-    }
-    
-    @Override
-    public void bindEasy() {
-        menu.addActionListenerToEasy(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                model.setVelocityToSlow();
             }
         });
     }
