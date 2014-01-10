@@ -83,7 +83,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	}
 
 	public Snake() {
-	    
 		super("Snake v0.7");
 		setSize(width, height);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -122,11 +121,11 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
     private void createSnakeAndFood() {
         board.removeAll();
-        board.repaint();
         refreshPoints();
         pieces.clear();
         firstSnake();
 		createNewFood();
+		board.repaint();
     }
 
     private void createFrame() {

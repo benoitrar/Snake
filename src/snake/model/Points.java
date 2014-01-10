@@ -16,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class Points {
     
+    private static final int STARTING_POINTS = 0;
     private static final String TOPLIST_FILENAME = "toplista.ser";
     private static final String[] colNames = {"Név", "Pont"};
 
@@ -70,7 +71,7 @@ public class Points {
     }
 
     public void init() {
-        actualPoints = -2;
+        actualPoints = STARTING_POINTS;
         loadToplistFromFile();
     }
 
