@@ -64,7 +64,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	private boolean canGoToRight;
 	private boolean canGoUpwards;
 	private boolean canGoDownwards;
-	private boolean hasEaten;
 	private boolean gameover;
 	private Snake.Delay delay = Snake.Delay.NORMAL_DELAY;
 
@@ -94,7 +93,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		canGoToRight = true;
 		canGoUpwards = true;
 		canGoDownwards = true;
-		hasEaten = true;
 		gameover = false;
 		points.init();
 	}
@@ -125,7 +123,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		createFrame();
 		addFrameToBoard();
 
-		firstSnake();
+		createSnakeAndFood();
 
 		pointsLabel.setForeground(Color.BLACK);
 		pointsPanel.add(pointsLabel);
@@ -142,6 +140,11 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 		start();
 	}
+
+    private void createSnakeAndFood() {
+        firstSnake();
+		createNewFood();
+    }
 
     private void createFrame() {
         frame[0] = new JPanel();
@@ -173,7 +176,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 		addFrameToBoard();
 
-		firstSnake();
+		createSnakeAndFood();
 
 		add(board, BorderLayout.CENTER);
 		repaint();
@@ -233,21 +236,20 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		}
 
 		Position tail = positions.get(positions.size()-2);
-		if (x == tail.getX() && y == tail.getY()) {
-			hasEaten = true;
+		if (hasEaten(x, y, tail)) {
+		    createNewFood();
 			points.getPointsForNewFood();
 			pointsLabel.setText("Pontszám: " + points.getActualPoints());
-		}
-
-		if (hasEaten == true) {
-			createNewFood();
-			hasEaten = false;
 		} else {
-			pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);
+		    pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);		    
 		}
 
 		setVisible(true);
 	}
+
+    private boolean hasEaten(int x, int y, Position tail) {
+        return x == tail.getX() && y == tail.getY();
+    }
 
     private boolean hasCrashed() {
         for (int i = 1; i < snakeLength - 1; i++) {
