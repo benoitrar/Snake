@@ -50,7 +50,7 @@ public class Points {
     	try (ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(TOPLIST_FILENAME)))) {
     		Points.toplist = (ArrayList<ToplistEntry>) in.readObject();
     	} catch (IOException | ClassNotFoundException e) {
-            JOptionPane.showConfirmDialog(null, "Highscores are not available.");
+            JOptionPane.showMessageDialog(null, "Highscores are not available.");
             loadEmptyHighscores();
         }
     }
@@ -65,7 +65,7 @@ public class Points {
     	try (ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(TOPLIST_FILENAME)))) {
     		out.writeObject(Points.toplist);
     	} catch (IOException e) {
-    	    JOptionPane.showConfirmDialog(null, "Highscores could not be saved.");
+    	    JOptionPane.showMessageDialog(null, "Highscores could not be saved.");
     	}
     }
 

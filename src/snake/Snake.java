@@ -38,6 +38,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	private final int unit = 10;
 	private final int boardWidth = 50 * unit;
 	private final int boardHeight = 30 * unit;
+	private final Position firstPosition = new Position(boardWidth/2 - unit, boardHeight/2 - unit);
     
 	private final SnakeModel model = new SnakeModel();
 	private final Points points = new Points();
@@ -64,9 +65,9 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	private boolean canGoUpwards;
 	private boolean canGoDownwards;
 	private boolean hasEaten;
-	private boolean crashedItself;
 	private boolean gameover;
 	private Snake.Delay delay = Snake.Delay.NORMAL_DELAY;
+
 	
 	public static enum Delay {
 	    
@@ -84,14 +85,11 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
 
 	public void init() {
-	    int x = 24 * unit;
-	    int y = 14 * unit;
-	    positions.add(new Position(x, y));
+	    positions.add(firstPosition);
 		snakeLength = 3;
 		xCoordChange = +unit;
 		yCoordChange = 0;
 		run = false;
-		crashedItself = false;
 		canGoToLeft = false;
 		canGoToRight = true;
 		canGoUpwards = true;
@@ -124,20 +122,10 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		top.setBounds(0, 0, boardWidth, boardHeight);
 		top.setBackground(Color.LIGHT_GRAY);
 
-		frame[0] = new JPanel();
-		frame[0].setBounds(0, 0, boardWidth, unit);
-		frame[1] = new JPanel();
-		frame[1].setBounds(0, 0, unit, boardHeight);
-		frame[2] = new JPanel();
-		frame[2].setBounds(0, boardHeight - unit, boardWidth, unit);
-		frame[3] = new JPanel();
-		frame[3].setBounds(boardWidth - unit, 0, unit, boardHeight);
-		board.add(frame[0]);
-		board.add(frame[1]);
-		board.add(frame[2]);
-		board.add(frame[3]);
+		createFrame();
+		addFrameToBoard();
 
-		elsoSnake();
+		firstSnake();
 
 		pointsLabel.setForeground(Color.BLACK);
 		pointsPanel.add(pointsLabel);
@@ -155,6 +143,24 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		start();
 	}
 
+    private void createFrame() {
+        frame[0] = new JPanel();
+		frame[0].setBounds(0, 0, boardWidth, unit);
+		frame[1] = new JPanel();
+		frame[1].setBounds(0, 0, unit, boardHeight);
+		frame[2] = new JPanel();
+		frame[2].setBounds(0, boardHeight - unit, boardWidth, unit);
+		frame[3] = new JPanel();
+		frame[3].setBounds(boardWidth - unit, 0, unit, boardHeight);
+    }
+
+    private void addFrameToBoard() {
+        board.add(frame[0]);
+		board.add(frame[1]);
+		board.add(frame[2]);
+		board.add(frame[3]);
+    }
+
 	void reset() {
 		init();
 
@@ -165,12 +171,9 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 			remove(top);
 		}
 
-		board.add(frame[0]);
-		board.add(frame[1]);
-		board.add(frame[2]);
-		board.add(frame[3]);
+		addFrameToBoard();
 
-		elsoSnake();
+		firstSnake();
 
 		add(board, BorderLayout.CENTER);
 		repaint();
@@ -180,7 +183,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		start();
 	}
 
-	void elsoSnake() {
+	void firstSnake() {
 		for (int i = 0; i < snakeLength; i++) {
 			JButton newPiece = createNewSnakePiece();
 			Position lastPos = positions.get(i);
@@ -192,7 +195,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		}
 	}
 
-	void novekszik() {
+	void createNewFood() {
 		JButton newPiece = createNewSnakePiece();
 
 		int kajax = 20 + (unit * random.nextInt(46));
@@ -217,25 +220,13 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		scrollPane.setViewportView(points.getToplistAsTable());
 	}
 
-	void mozgat() {
-		Position firstPos = positions.get(0);
-		int newX = firstPos.getX() + xCoordChange;
-	    int newY = firstPos.getY() + yCoordChange;
-        positions.add(0, new Position(newX , newY));
-        JButton oldTail = pieces.remove(pieces.size()-2);
-		oldTail.setBounds(newX, newY, unit, unit);
-		pieces.add(0, oldTail);
-
-		for (int i = 1; i < snakeLength - 1; i++) {
-			if (pieces.get(0).getLocation().equals(pieces.get(i).getLocation())) {
-				crashedItself = true;
-			}
-		}
+	private void move() {
+		removeTailAndAddNewHead();
 
 		Position head = positions.get(0);
 		int x = head.getX();
 		int y = head.getY();
-		if ((x + 10 == boardWidth) || (x == 0) || (y == 0) || (y + 10 == boardHeight) || (crashedItself == true)) {
+		if ((x + 10 == boardWidth) || (x == 0) || (y == 0) || (y + 10 == boardHeight) || hasCrashed()) {
 			run = false;
 			gameover = true;
 			handleGameEnd();
@@ -249,7 +240,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		}
 
 		if (hasEaten == true) {
-			novekszik();
+			createNewFood();
 			hasEaten = false;
 		} else {
 			pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);
@@ -257,6 +248,25 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 		setVisible(true);
 	}
+
+    private boolean hasCrashed() {
+        for (int i = 1; i < snakeLength - 1; i++) {
+			if (pieces.get(0).getLocation().equals(pieces.get(i).getLocation())) {
+				return true;
+			}
+		}
+        return false;
+    }
+
+    private void removeTailAndAddNewHead() {
+        Position firstPos = positions.get(0);
+		int newX = firstPos.getX() + xCoordChange;
+	    int newY = firstPos.getY() + yCoordChange;
+        positions.add(0, new Position(newX , newY));
+        JButton oldTail = pieces.remove(pieces.size()-2);
+		oldTail.setBounds(newX, newY, unit, unit);
+		pieces.add(0, oldTail);
+    }
 
 	private void handleGameEnd() {
 	    remove(board);
@@ -337,7 +347,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 	public void run() {
 		while (run) {
-			mozgat();
+			move();
 			try {
 				Thread.sleep(delay.getDelay());
 			} catch (InterruptedException e) {
