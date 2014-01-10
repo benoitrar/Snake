@@ -135,8 +135,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	}
 
     private void createSnakeAndFood() {
-        System.out.println(positions.size());
-        System.out.println(pieces.size());
         board.removeAll();
         board.repaint();
         refreshPoints();
@@ -242,7 +240,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
 
     private void removeTailAndAddNewHead() {
-        Position firstPos = positions.get(0);
+        Position firstPos = positions.remove(0);
 		int newX = firstPos.getX() + xCoordChange;
 	    int newY = firstPos.getY() + yCoordChange;
         positions.add(0, new Position(newX , newY));
