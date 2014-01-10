@@ -51,8 +51,8 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     private final JPanel pointsPanel = new JPanel();
     private final JPanel top = new JPanel();
     private final JPanel[] frame = new JPanel[4];
-    private final JLabel pointsLabel = new JLabel("Pontszám: 0");
-    private final JScrollPane scrollPane = new JScrollPane();
+    private final JLabel pointsLabel = new JLabel();
+    private final JScrollPane toplistContainer = new JScrollPane();
     private final JTextField winnersName = new WinnersName(10);
 	
     private int snakeLength;
@@ -84,8 +84,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
 
 	public void init() {
-	    positions.clear();
-	    positions.add(firstPosition);
 		snakeLength = 3;
 		xCoordChange = +unit;
 		yCoordChange = 0;
@@ -94,6 +92,8 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		canGoUpwards = true;
 		canGoDownwards = true;
 		points.init();
+		refreshPoints();
+		createSnakeAndFood();
 	}
 
 	public Snake() {
@@ -102,7 +102,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		setSize(width, height);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		init();
 
         new MenuController(menu, board, model, points).bind();
 
@@ -117,7 +116,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		createFrame();
 		addFrameToBoard();
 
-		createSnakeAndFood();
+		init();
 
 		pointsLabel.setForeground(Color.BLACK);
 		pointsPanel.add(pointsLabel);
@@ -136,6 +135,14 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	}
 
     private void createSnakeAndFood() {
+        System.out.println(positions.size());
+        System.out.println(pieces.size());
+        board.removeAll();
+        board.repaint();
+        refreshPoints();
+        positions.clear();
+        positions.add(firstPosition);
+        pieces.clear();
         firstSnake();
 		createNewFood();
     }
@@ -192,7 +199,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
 
 	void refreshToplist() {
-		scrollPane.setViewportView(points.getToplistAsTable());
+		toplistContainer.setViewportView(points.getToplistAsTable());
 	}
 
 	private void move() {
@@ -209,13 +216,17 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		if (hasEaten(x, y, tail)) {
 		    createNewFood();
 			points.getPointsForNewFood();
-			pointsLabel.setText("Pontszám: " + points.getActualPoints());
+			refreshPoints();
 		} else {
 		    pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);		    
 		}
 
 		setVisible(true);
 	}
+
+    private void refreshPoints() {
+        pointsLabel.setText("Pontszám: " + points.getActualPoints());
+    }
 
     private boolean hasEaten(int x, int y, Position tail) {
         return x == tail.getX() && y == tail.getY();
@@ -268,7 +279,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
                         points.addHighScore(WinnersName.this.getText());
                         refreshToplist();
                         top.removeAll();
-                        top.add(scrollPane);
+                        top.add(toplistContainer);
                         Snake.this.revalidate();
                         points.writeToplistToFile();
                     }
