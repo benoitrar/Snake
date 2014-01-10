@@ -124,8 +124,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
         board.removeAll();
         board.repaint();
         refreshPoints();
-        positions.clear();
-        positions.add(firstPosition);
         pieces.clear();
         firstSnake();
 		createNewFood();
@@ -159,6 +157,8 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
     
 	void firstSnake() {
+        positions.clear();
+        positions.add(firstPosition);
 		for (int i = 0; i < snakeLength-1; i++) {
 			Position lastPos = positions.get(i);
 			positions.add(new Position(lastPos.getX() - unit, lastPos.getY()));
@@ -198,22 +198,26 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		Position head = positions.get(0);
 		int x = head.getX();
 		int y = head.getY();
-		if ((x >= boardWidth) || (x < 0) || (y < 0) || (y >= boardHeight) || hasCrashedItself()) {
+		if (isGameEnd(x, y)) {
 			handleGameEnd();
-		}
-
-		Position tail = positions.get(positions.size()-2);
-		if (hasEaten(x, y, tail)) {
-		    createNewFood();
-			points.getPointsForNewFood();
-			refreshPoints();
 		} else {
-		    pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);		    
-		}
+		    Position tail = positions.get(positions.size()-2);
+	        if (hasEaten(x, y, tail)) {
+	            createNewFood();
+	            points.getPointsForNewFood();
+	            refreshPoints();
+	        } else {
+	            pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);            
+	        }
 
+	        run = true;
+		}
 		setVisible(true);
-		run = true;
 	}
+
+    private boolean isGameEnd(int x, int y) {
+        return (x >= boardWidth) || (x < 0) || (y < 0) || (y >= boardHeight) || hasCrashedItself();
+    }
 
     private void refreshPoints() {
         pointsLabel.setText("Pontszám: " + points.getActualPoints());
@@ -243,6 +247,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
 
 	private void handleGameEnd() {
+	    run = false;
 	    remove(board);
 	    top.removeAll();
 	    top.add(gameEnd);
@@ -326,8 +331,8 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 	public void run() {
 		while (true) {
-		    if (run ) {
-		        move();		        
+		    if (run) {
+		        move();
 		    }
 			try {
 				Thread.sleep(delay.getDelay());
