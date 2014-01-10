@@ -55,7 +55,6 @@ public class MenuController implements MenuActions {
     public void bindExit() {
         menu.addActionListenerToExit(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // TODO System.exit() is forbidden
                 System.exit(0);
             }
         });

@@ -59,13 +59,13 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	private int xCoordChange;
 	private int yCoordChange;
 	
-	private boolean run;
 	private boolean canGoToLeft;
 	private boolean canGoToRight;
 	private boolean canGoUpwards;
 	private boolean canGoDownwards;
-	private boolean gameover;
 	private Snake.Delay delay = Snake.Delay.NORMAL_DELAY;
+
+    private final Thread movingThread = new Thread(this);
 
 	
 	public static enum Delay {
@@ -84,22 +84,16 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
 
 	public void init() {
+	    positions.clear();
 	    positions.add(firstPosition);
 		snakeLength = 3;
 		xCoordChange = +unit;
 		yCoordChange = 0;
-		run = false;
 		canGoToLeft = false;
 		canGoToRight = true;
 		canGoUpwards = true;
 		canGoDownwards = true;
-		gameover = false;
 		points.init();
-	}
-
-	public void start() {
-		run = true;
-		(new Thread(this)).start();
 	}
 
 	public Snake() {
@@ -163,29 +157,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		board.add(frame[2]);
 		board.add(frame[3]);
     }
-
-	void reset() {
-		init();
-
-		board.removeAll();
-		scrollPane.removeAll();
-
-		if (gameover == true) {
-			remove(top);
-		}
-
-		addFrameToBoard();
-
-		createSnakeAndFood();
-
-		add(board, BorderLayout.CENTER);
-		repaint();
-		setVisible(true);
-		pointsLabel.setText("Pontszám: " + points.getActualPoints());
-
-		start();
-	}
-
+		
 	void firstSnake() {
 		for (int i = 0; i < snakeLength; i++) {
 			JButton newPiece = createNewSnakePiece();
@@ -230,8 +202,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		int x = head.getX();
 		int y = head.getY();
 		if ((x + 10 == boardWidth) || (x == 0) || (y == 0) || (y + 10 == boardHeight) || hasCrashed()) {
-			run = false;
-			gameover = true;
 			handleGameEnd();
 		}
 
@@ -337,7 +307,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 			canGoToLeft = true;
 		}
 		if (e.getKeyCode() == 113) {
-			reset();
+			init();
 		}
 	}
 
@@ -346,14 +316,18 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 	public void keyTyped(KeyEvent arg0) {
 	}
+	
+	public void start() {
+        movingThread.start();
+    }
 
 	public void run() {
-		while (run) {
+		while (true) {
 			move();
 			try {
 				Thread.sleep(delay.getDelay());
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				// Ignore
 			}
 		}
 	}
