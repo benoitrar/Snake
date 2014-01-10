@@ -67,21 +67,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
     private final Thread movingThread = new Thread(this);
 
-	
-	public static enum Delay {
-	    
-        LITTLE_DELAY(50), NORMAL_DELAY(70), BIG_DELAY(90);
-        
-        private final long delay;
-        
-        private Delay(long delay) {
-            this.delay = delay;
-        }
-        
-        public long getDelay() {
-            return delay;
-        }
-    }
+    private volatile boolean run = false;
 
 	public void init() {
 		snakeLength = 3;
@@ -162,24 +148,29 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		board.add(frame[2]);
 		board.add(frame[3]);
     }
-		
+	
+    public void updateBoard(List<Position> positions) {
+        board.removeAll();
+        for (Position pos : positions) {
+            JButton newPiece = createNewSnakePiece();
+            newPiece.setBounds(pos.getX(), pos.getY(), unit, unit);
+            board.add(newPiece);
+        }
+    }
+    
 	void firstSnake() {
-		for (int i = 0; i < snakeLength; i++) {
-			JButton newPiece = createNewSnakePiece();
+		for (int i = 0; i < snakeLength-1; i++) {
 			Position lastPos = positions.get(i);
-			newPiece.setBounds(lastPos.getX(), lastPos.getY(), unit, unit);
-
-			board.add(newPiece);
-
 			positions.add(new Position(lastPos.getX() - unit, lastPos.getY()));
 		}
+		updateBoard(positions);
 	}
 
 	void createNewFood() {
 		JButton newPiece = createNewSnakePiece();
 
-		int kajax = 20 + (unit * random.nextInt(46));
-		int kajay = 20 + (unit * random.nextInt(26));
+		int kajax = random.nextInt(boardWidth/unit)*unit;
+		int kajay = random.nextInt(boardHeight/unit)*unit;
 
 		positions.add(new Position(kajax, kajay));
 		newPiece.setBounds(kajax, kajay, unit, unit);
@@ -201,12 +192,13 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	}
 
 	private void move() {
+	    run = false;
 		removeTailAndAddNewHead();
 
 		Position head = positions.get(0);
 		int x = head.getX();
 		int y = head.getY();
-		if ((x + 10 == boardWidth) || (x == 0) || (y == 0) || (y + 10 == boardHeight) || hasCrashed()) {
+		if ((x >= boardWidth) || (x < 0) || (y < 0) || (y >= boardHeight) || hasCrashedItself()) {
 			handleGameEnd();
 		}
 
@@ -220,6 +212,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		}
 
 		setVisible(true);
+		run = true;
 	}
 
     private void refreshPoints() {
@@ -230,7 +223,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
         return x == tail.getX() && y == tail.getY();
     }
 
-    private boolean hasCrashed() {
+    private boolean hasCrashedItself() {
         for (int i = 1; i < snakeLength - 1; i++) {
 			if (pieces.get(0).getLocation().equals(pieces.get(i).getLocation())) {
 				return true;
@@ -328,11 +321,14 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	
 	public void start() {
         movingThread.start();
+        run = true;
     }
 
 	public void run() {
 		while (true) {
-			move();
+		    if (run ) {
+		        move();		        
+		    }
 			try {
 				Thread.sleep(delay.getDelay());
 			} catch (InterruptedException e) {
@@ -340,6 +336,21 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 			}
 		}
 	}
+    
+    public static enum Delay {
+        
+        LITTLE_DELAY(50), NORMAL_DELAY(70), BIG_DELAY(90);
+        
+        private final long delay;
+        
+        private Delay(long delay) {
+            this.delay = delay;
+        }
+        
+        public long getDelay() {
+            return delay;
+        }
+    }
 
 	@Override
     public void bindDifficult() {
