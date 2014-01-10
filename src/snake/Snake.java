@@ -70,17 +70,21 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     private volatile boolean run = false;
 
 	public void init() {
-		snakeLength = 3;
+		initData();
+		points.init();
+		refreshPoints();
+		createSnakeAndFood();
+	}
+
+    private void initData() {
+        snakeLength = 3;
 		xCoordChange = +unit;
 		yCoordChange = 0;
 		canGoToLeft = false;
 		canGoToRight = true;
 		canGoUpwards = true;
 		canGoDownwards = true;
-		points.init();
-		refreshPoints();
-		createSnakeAndFood();
-	}
+    }
 
 	public Snake() {
 		super("Snake v0.7");
@@ -121,8 +125,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
     private void createSnakeAndFood() {
         board.removeAll();
-        refreshPoints();
-        pieces.clear();
         firstSnake();
 		createNewFood();
 		board.repaint();
@@ -148,6 +150,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	
     public void updateBoard(List<Position> positions) {
         board.removeAll();
+        pieces.clear();
         for (Position pos : positions) {
             JButton newPiece = createNewSnakePiece();
             newPiece.setBounds(pos.getX(), pos.getY(), unit, unit);
