@@ -3,32 +3,25 @@ package snake.model;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 public class Points {
     
-    private final static String[] colNames = {"Név", "Pont"};
+    private static final String TOPLIST_FILENAME = "toplista.ser";
+    private static final String[] colNames = {"Név", "Pont"};
 
     private static ArrayList<ToplistEntry> toplist = new ArrayList<ToplistEntry>();
 
     private int actualPoints;
-    
-
-    public Points() {
-    }
     
     public boolean isHighScore() {
         return actualPoints > toplist.get(toplist.size()-1).getPoints();
@@ -54,45 +47,25 @@ public class Points {
 
     @SuppressWarnings("unchecked")
     public void loadToplistFromFile() {
-    	// A fájl megnyitása
-    	try {
-    		InputStream file = new FileInputStream("toplista.ser");
-    		InputStream buffer = new BufferedInputStream(file);
-    		ObjectInput in;
-    		in = new ObjectInputStream(buffer);
-    
-    		// A fájl tartalmának bemásolása a lista ArrayListbe
+    	try (ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(TOPLIST_FILENAME)))) {
     		Points.toplist = (ArrayList<ToplistEntry>) in.readObject();
-    
-    		// A fájl bezárása
-    		in.close();
-    	} catch (FileNotFoundException e) {
-    		e.printStackTrace();
-    	} catch (ClassNotFoundException e) {
-    		e.printStackTrace();
-    	} catch (IOException e) {
-    		e.printStackTrace();
-    	}
+    	} catch (IOException | ClassNotFoundException e) {
+            JOptionPane.showConfirmDialog(null, "Highscores are not available.");
+            loadEmptyHighscores();
+        }
+    }
+
+    private void loadEmptyHighscores() {
+        for(int i=0;i<10;i++) {
+            toplist.add(new ToplistEntry("", 0));
+        }
     }
 
     public void writeToplistToFile() {
-    	// A fájl megnyitása
-    	try {
-    		OutputStream file = new FileOutputStream("toplista.ser");
-    
-    		OutputStream buffer = new BufferedOutputStream(file);
-    		ObjectOutput out;
-    		out = new ObjectOutputStream(buffer);
-    
-    		// A lista ArrayList fájlba írása
+    	try (ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(TOPLIST_FILENAME)))) {
     		out.writeObject(Points.toplist);
-    
-    		// A fájl bezárása
-    		out.close();
-    	} catch (FileNotFoundException e) {
-    		e.printStackTrace();
     	} catch (IOException e) {
-    		e.printStackTrace();
+    	    JOptionPane.showConfirmDialog(null, "Highscores could not be saved.");
     	}
     }
 
@@ -107,11 +80,5 @@ public class Points {
 
     public void getPointsForNewFood() {
         actualPoints += 5;
-    }
-    
-    private void loadToplistWithEmptyRecords() {
-        for(int i=0;i<10;i++) {
-            toplist.add(new ToplistEntry("", -1));
-        }
     }
 }
