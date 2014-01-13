@@ -68,6 +68,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     private final Thread movingThread = new Thread(this);
 
     private volatile boolean run = false;
+    private volatile boolean notTurning = true;
 
 	public void init() {
 		initData();
@@ -194,14 +195,15 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	}
 
 	private void move() {
-	    run = false;
 		removeTailAndAddNewHead();
 
 		Position head = positions.get(0);
 		int x = head.getX();
 		int y = head.getY();
+		
 		if (isGameEnd(x, y)) {
 			handleGameEnd();
+			run = false;
 		} else {
 		    Position tail = positions.get(positions.size()-2);
 	        if (hasEaten(x, y, tail)) {
@@ -211,7 +213,6 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 	        } else {
 	            pieces.get(snakeLength - 1).setBounds(tail.getX(), tail.getY(), unit, unit);            
 	        }
-
 	        run = true;
 		}
 		setVisible(true);
@@ -250,6 +251,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 
 	private void handleGameEnd() {
 	    run = false;
+	    notTurning = true;
 	    remove(board);
 	    top.removeAll();
 	    top.add(gameEnd);
@@ -287,34 +289,40 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
     }
 
     public void keyPressed(KeyEvent e) {
-		if (canGoToLeft == true && e.getKeyCode() == 37) {
-			xCoordChange = -unit;
-			yCoordChange = 0;
-			canGoToRight = false;
-			canGoUpwards = true;
-			canGoDownwards = true;
-		}
-		if (canGoUpwards == true && e.getKeyCode() == 38) {
-			xCoordChange = 0;
-			yCoordChange = -unit;
-			canGoDownwards = false;
-			canGoToRight = true;
-			canGoToLeft = true;
-		}
-		if (canGoToRight == true && e.getKeyCode() == 39) {
-			xCoordChange = +unit;
-			yCoordChange = 0;
-			canGoToLeft = false;
-			canGoUpwards = true;
-			canGoDownwards = true;
-		}
-		if (canGoDownwards == true && e.getKeyCode() == 40) {
-			xCoordChange = 0;
-			yCoordChange = +unit;
-			canGoUpwards = false;
-			canGoToRight = true;
-			canGoToLeft = true;
-		}
+        if(notTurning) {
+    		if (canGoToLeft == true && e.getKeyCode() == 37) {
+    			xCoordChange = -unit;
+    			yCoordChange = 0;
+    			canGoToRight = false;
+    			canGoUpwards = true;
+    			canGoDownwards = true;
+    			notTurning = false;
+    		}
+    		if (canGoUpwards == true && e.getKeyCode() == 38) {
+    			xCoordChange = 0;
+    			yCoordChange = -unit;
+    			canGoDownwards = false;
+    			canGoToRight = true;
+    			canGoToLeft = true;
+                notTurning = false;
+    		}
+    		if (canGoToRight == true && e.getKeyCode() == 39) {
+    			xCoordChange = +unit;
+    			yCoordChange = 0;
+    			canGoToLeft = false;
+    			canGoUpwards = true;
+    			canGoDownwards = true;
+                notTurning = false;
+    		}
+    		if (canGoDownwards == true && e.getKeyCode() == 40) {
+    			xCoordChange = 0;
+    			yCoordChange = +unit;
+    			canGoUpwards = false;
+    			canGoToRight = true;
+    			canGoToLeft = true;
+                notTurning = false;
+    		}
+        }
 		if (e.getKeyCode() == 113) {
 			init();
 		}
@@ -335,6 +343,7 @@ public class Snake extends JFrame implements KeyListener, Runnable, VelocityActi
 		while (true) {
 		    if (run) {
 		        move();
+		        notTurning = true;
 		    }
 			try {
 				Thread.sleep(delay.getDelay());
